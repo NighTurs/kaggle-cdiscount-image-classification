@@ -45,6 +45,13 @@ ${DATA_INTERIM}/test_product_info.csv:
 	pipenv run $(PYTHON_INTERPRETER) src/data/product_info.py --bson ${TEST_BSON} \
 		--without_categories --output_file ${DATA_INTERIM}/test_product_info.csv
 
+## Create stratified sample with 200000 products
+big_sample: ${DATA_INTERIM}/big_sample_product_info.csv
+
+${DATA_INTERIM}/big_sample_product_info.csv: product_info
+	pipenv run $(PYTHON_INTERPRETER) src/data/big_sample.py --prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/big_sample_product_info.csv
+
 
 #################################################################################
 # Self Documenting Commands                                                     #
