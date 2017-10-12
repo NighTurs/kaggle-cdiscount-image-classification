@@ -19,6 +19,7 @@ seaborn = "*"
 "h5py" = "*"
 bcolz = "*"
 cookiecutter = "*"
+tqdm = "*"
 
 
 [dev-packages]

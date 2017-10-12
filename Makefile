@@ -7,7 +7,7 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = kaggle-cdiscount-image-classification
 PYTHON_INTERPRETER = python3
-
+include .env
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -33,6 +33,17 @@ test_environment:
 # PROJECT RULES                                                                 #
 #################################################################################
 
+
+## Run through dataset and compile csv with products information
+product_info: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/test_product_info.csv
+
+${DATA_INTERIM}/train_product_info.csv:
+	pipenv run $(PYTHON_INTERPRETER) src/data/product_info.py --bson ${TRAIN_BSON} \
+		--output_file ${DATA_INTERIM}/train_product_info.csv
+
+${DATA_INTERIM}/test_product_info.csv:
+	pipenv run $(PYTHON_INTERPRETER) src/data/product_info.py --bson ${TEST_BSON} \
+		--without_categories --output_file ${DATA_INTERIM}/test_product_info.csv
 
 
 #################################################################################

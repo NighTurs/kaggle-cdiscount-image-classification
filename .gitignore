@@ -1,5 +1,5 @@
 .idea
-data
+/data
 .env
 .ipynb_checkpoints
 nohup.out
