@@ -57,7 +57,7 @@ big_sample_vgg16_vecs: ${DATA_INTERIM}/big_sample_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TRAIN_BSON} \
 		--prod_info_csv ${DATA_INTERIM}/big_sample_product_info.csv \
 		--output_dir ${DATA_INTERIM}/big_sample_vgg16_vecs \
-		--save_step 100000
+		--save_step 100000 \
 		--only_first_image
 
 ## Precompute ResNet50 vectors for big sample
@@ -65,7 +65,7 @@ big_sample_resnet50_vecs: ${DATA_INTERIM}/big_sample_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.resnet50_vecs --bson ${TRAIN_BSON} \
 		--prod_info_csv ${DATA_INTERIM}/big_sample_product_info.csv \
 		--output_dir ${DATA_INTERIM}/big_sample_resnet50_vecs \
-		--save_step 100000
+		--save_step 100000 \
 		--only_first_image
 
 
