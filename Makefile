@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements
+.PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -48,9 +48,17 @@ ${DATA_INTERIM}/test_product_info.csv:
 ## Create stratified sample with 200000 products
 big_sample: ${DATA_INTERIM}/big_sample_product_info.csv
 
-${DATA_INTERIM}/big_sample_product_info.csv: product_info
+${DATA_INTERIM}/big_sample_product_info.csv: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) src/data/big_sample.py --prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_file ${DATA_INTERIM}/big_sample_product_info.csv
+
+## Precompute VGG16 vectors for big sample
+big_sample_vgg16_vecs: ${DATA_INTERIM}/big_sample_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TRAIN_BSON} \
+		--prod_info_csv ${DATA_INTERIM}/big_sample_product_info.csv \
+		--output_dir ${DATA_INTERIM}/big_sample_vgg16_vecs \
+		--save_step 100000
+		--only_first_image
 
 
 #################################################################################
