@@ -29,7 +29,7 @@ def create_big_sample(prod_info_csv):
 
 
 def save_big_sample(big_sample, output_file):
-    big_sample.to_csv(output_file)
+    big_sample.to_csv(output_file, index=False)
 
 
 if __name__ == '__main__':
