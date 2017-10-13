@@ -3,7 +3,7 @@ import argparse
 import os
 import bcolz
 from tqdm import tqdm
-from ..model import BSONIterator
+from .bson_iterator import BSONIterator
 from keras.applications.resnet50 import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
@@ -28,7 +28,7 @@ def compute_vgg16_vecs(bson_path, images_df, vecs_output_dir, save_step=100000):
             gen = ImageDataGenerator(preprocessing_function=preprocess_input)
             batches = BSONIterator(bson_file=train_bson_file,
                                    images_df=images_df[i:(i + save_step)],
-                                   num_class=0, # doesn't matter here
+                                   num_class=0,  # doesn't matter here
                                    image_data_generator=gen,
                                    lock=lock,
                                    target_size=(197, 197),
@@ -36,8 +36,9 @@ def compute_vgg16_vecs(bson_path, images_df, vecs_output_dir, save_step=100000):
                                    shuffle=False,
                                    with_labels=False)
 
-            out_vecs = resnet_model.predict_generator(batches, steps=(batches.samples + batches.batch_size)
-                                                              // batches.batch_size, verbose=1)
+            out_vecs = resnet_model.predict_generator(batches,
+                                                      steps=batches.samples / batches.batch_size,
+                                                      verbose=1)
             if not vecs:
                 vecs = bcolz.carray(out_vecs, rootdir=vecs_output_dir, mode='w')
                 vecs.flush()
@@ -69,7 +70,6 @@ if __name__ == '__main__':
     parser.add_argument('--only_first_image', dest='only_first_image', action='store_true',
                         help="Include only first image from each product")
     parser.set_defaults(only_first_image=False)
-
 
     args = parser.parse_args()
     product_info = pd.read_csv(args.prod_info_csv)

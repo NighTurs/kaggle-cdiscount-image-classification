@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import argparse
 
+
 def create_big_sample(prod_info_csv):
     prod_info = pd.read_csv(prod_info_csv)
     category_stats = prod_info.groupby(by='category_id').size()
@@ -12,7 +13,7 @@ def create_big_sample(prod_info_csv):
     np.random.seed(123)
     chunks = []
     for category, prods in prod_info.groupby(by='category_id'):
-        if not category in categories_set:
+        if category not in categories_set:
             continue
         chunks.append(prods.sample(100 if prods.shape[0] >= 100 else prods.shape[0]))
     sample = pd.concat(chunks)
