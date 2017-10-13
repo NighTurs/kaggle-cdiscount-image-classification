@@ -4,16 +4,14 @@ import os
 import bcolz
 from tqdm import tqdm
 from ..model import BSONIterator
-from keras.applications.vgg16 import VGG16
-from keras.applications.vgg16 import preprocess_input
-from keras.models import Model
-from keras.layers import AveragePooling2D
+from keras.applications.resnet50 import ResNet50
+from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 import threading
 
 
 def compute_vgg16_vecs(bson_path, images_df, vecs_output_dir, save_step=100000):
-    vgg_model = VGG16(include_top=False, input_shape=(3, 180, 180))
+    resnet_model = ResNet50(include_top=False, input_shape=(3, 197, 197))
 
     if os.path.isdir(vecs_output_dir):
         vecs = bcolz.open(rootdir=vecs_output_dir)
@@ -33,13 +31,12 @@ def compute_vgg16_vecs(bson_path, images_df, vecs_output_dir, save_step=100000):
                                    num_class=0, # doesn't matter here
                                    image_data_generator=gen,
                                    lock=lock,
-                                   target_size=(180, 180),
+                                   target_size=(197, 197),
                                    batch_size=220,
                                    shuffle=False,
                                    with_labels=False)
-            x = AveragePooling2D()(vgg_model.output)
-            model = Model(vgg_model.input, x)
-            out_vecs = model.predict_generator(batches, steps=(batches.samples + batches.batch_size)
+
+            out_vecs = resnet_model.predict_generator(batches, steps=(batches.samples + batches.batch_size)
                                                               // batches.batch_size, verbose=1)
             if not vecs:
                 vecs = bcolz.carray(out_vecs, rootdir=vecs_output_dir, mode='w')
