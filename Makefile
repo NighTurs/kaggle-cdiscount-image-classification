@@ -1,4 +1,5 @@
-.PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs
+.PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
+	test_vgg16_vecs test_resnet50_vecs
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -68,6 +69,19 @@ big_sample_resnet50_vecs: ${DATA_INTERIM}/big_sample_product_info.csv
 		--save_step 100000 \
 		--only_first_image
 
+## Precompute VGG16 vectors for test dataset
+test_vgg16_vecs: ${DATA_INTERIM}/test_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TEST_BSON} \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--output_dir ${TEST_VGG16_VECS_PATH} \
+		--save_step 100000
+
+## Precompute ResNet50 vectors for test dataset
+test_resnet50_vecs: ${DATA_INTERIM}/test_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.resnet50_vecs --bson ${TEST_BSON} \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--output_dir ${TEST_RESNET50_VECS_PATH} \
+		--save_step 100000
 
 #################################################################################
 # Self Documenting Commands                                                     #
