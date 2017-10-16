@@ -17,15 +17,7 @@ def create_big_sample(prod_info_csv):
             continue
         chunks.append(prods.sample(100 if prods.shape[0] >= 100 else prods.shape[0]))
     sample = pd.concat(chunks)
-
     sample = sample.reset_index(drop=True)
-    idx = np.arange(sample.shape[0])
-    np.random.seed(123)
-    np.random.shuffle(idx)
-    cut = int(sample.shape[0] * 0.8)
-    sample['train'] = False
-    sample.loc[idx[:cut], 'train'] = True
-
     return sample
 
 
