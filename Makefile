@@ -1,5 +1,5 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs test_resnet50_vecs category_indexes
+	test_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -89,6 +89,17 @@ category_indexes: ${DATA_INTERIM}/category_idx.csv
 ${DATA_INTERIM}/category_idx.csv: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.data.category_idx --prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_file ${DATA_INTERIM}/category_idx.csv
+
+## Create top 2000 categories sample
+top_2000_sample: ${DATA_INTERIM}/top_2000_sample_product_info.csv
+
+
+${DATA_INTERIM}/top_2000_sample_product_info.csv:
+	pipenv run $(PYTHON_INTERPRETER) -m src.data.top_categories_sample \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--num_categories 2000
+
 
 #################################################################################
 # Self Documenting Commands                                                     #
