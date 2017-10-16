@@ -1,5 +1,5 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs test_resnet50_vecs
+	test_vgg16_vecs test_resnet50_vecs category_indexes
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -82,6 +82,13 @@ test_resnet50_vecs: ${DATA_INTERIM}/test_product_info.csv
 		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
 		--output_dir ${TEST_RESNET50_VECS_PATH} \
 		--save_step 100000
+
+## Create category indexes
+category_indexes: ${DATA_INTERIM}/category_idx.csv
+
+${DATA_INTERIM}/category_idx.csv: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.data.category_idx --prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/category_idx.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
