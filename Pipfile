@@ -1,7 +1,9 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
+
 
 [packages]
 
@@ -10,8 +12,8 @@ pandas = "*"
 numpy = "*"
 jupyter = "*"
 theano = "*"
-"scikit-learn" = "*"
-"jupyter-contrib-nbextensions" = "*"
+scikit-learn = "*"
+jupyter-contrib-nbextensions = "*"
 pillow = "*"
 pymongo = "*"
 matplotlib = "*"
