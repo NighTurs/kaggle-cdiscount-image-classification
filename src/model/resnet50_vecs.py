@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--bson', required=True, help='Path to bson with products')
     parser.add_argument('--prod_info_csv', required=True, help='Path to prod info csv')
     parser.add_argument('--output_dir', required=True, help='Output directory for vectors')
-    parser.add_argument('--save_step', required=True, help='Save computed vectors to disk each N steps')
+    parser.add_argument('--save_step', type=int, required=True, help='Save computed vectors to disk each N steps')
     parser.add_argument('--only_first_image', dest='only_first_image', action='store_true',
                         help="Include only first image from each product")
     parser.set_defaults(only_first_image=False)
@@ -75,4 +75,4 @@ if __name__ == '__main__':
     product_info = pd.read_csv(args.prod_info_csv)
 
     images_df = create_images_df(product_info, args.only_first_image)
-    compute_vgg16_vecs(args.bson, images_df, args.output_dir)
+    compute_vgg16_vecs(args.bson, images_df, args.output_dir, args.save_step)
