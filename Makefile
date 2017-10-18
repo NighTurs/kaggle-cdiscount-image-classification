@@ -1,5 +1,5 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample
+	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -74,6 +74,13 @@ test_vgg16_vecs: ${DATA_INTERIM}/test_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TEST_BSON} \
 		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
 		--output_dir ${TEST_VGG16_VECS_PATH} \
+		--save_step 100000
+
+## Precompute VGG16 vectors for train dataset
+train_vgg16_vecs: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TRAIN_BSON} \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_dir ${TRAIN_VGG16_VECS_PATH} \
 		--save_step 100000
 
 ## Precompute ResNet50 vectors for test dataset
