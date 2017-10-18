@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse
+import numpy as np
 
 
 def create_category_idx(prod_info):
@@ -16,6 +17,11 @@ def category_to_index_dict(category_idx):
 
 def index_to_category_dict(category_idx):
     return {row.category_idx: row.category_id for row in category_idx.itertuples()}
+
+
+def map_categories(category_idx, categories):
+    cat2idx = category_to_index_dict(category_idx)
+    return np.array([cat2idx[x] for x in categories])
 
 
 if __name__ == '__main__':
