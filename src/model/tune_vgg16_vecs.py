@@ -10,13 +10,15 @@ from keras.layers import Input
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import CSVLogger
 from ..data.category_idx import map_categories
 from ..data.train_split import train_slit
 from .bcolz_iterator import BcolzIterator
 from .vgg16_vecs import create_images_df
 
 LOAD_MODEL = 'model.h5'
-SNAPSHOT_MODEL = 'model_{epoch:02d}_{val_loss:.2f}.h5'
+SNAPSHOT_MODEL = 'model.h5'
+LOG_FILE = 'training.log'
 PREDICTIONS_FILE = 'predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 100000
 
@@ -51,7 +53,7 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
     else:
         inp = Input((512, 2, 2))
         x = Flatten()(inp)
-        x = Dense(2000, activation='relu')(x)
+        x = Dense(512, activation='relu')(x)
         x = BatchNormalization(axis=-1)(x)
         x = Dense(num_classes, activation='softmax')(x)
         model = Model(inp, x)
@@ -61,12 +63,13 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
 
     np.random.seed(125)
     checkpointer = ModelCheckpoint(filepath=os.path.join(models_dir, SNAPSHOT_MODEL))
+    csv_logger = CSVLogger(os.path.join(models_dir, LOG_FILE), append=True)
     model.fit_generator(train_it,
                         steps_per_epoch=train_it.samples / batch_size,
                         validation_data=valid_it,
                         validation_steps=valid_it.samples / batch_size,
                         epochs=epochs,
-                        callbacks=[checkpointer])
+                        callbacks=[checkpointer, csv_logger])
 
 
 def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200, top_k=20):
@@ -95,6 +98,7 @@ def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200,
         chunk_df = pd.DataFrame(chunk, columns=['product_id', 'img_idx', 'category_idx', 'prob'])
         out_df = pd.concat([out_df, chunk_df])
         offset += top_k_preds.shape[0]
+        del top_k_preds
     return out_df
 
 
