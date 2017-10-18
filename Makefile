@@ -100,13 +100,20 @@ ${DATA_INTERIM}/category_idx.csv: ${DATA_INTERIM}/train_product_info.csv
 ## Create top 2000 categories sample
 top_2000_sample: ${DATA_INTERIM}/top_2000_sample_product_info.csv
 
-
 ${DATA_INTERIM}/top_2000_sample_product_info.csv:
 	pipenv run $(PYTHON_INTERPRETER) -m src.data.top_categories_sample \
 		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_file ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--num_categories 2000
 
+## Train head dense layer of VGG16 on top 2000 categories
+vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+        --models_dir model/vgg16_head_top_2000 \
+		--batch_size 250
 
 #################################################################################
 # Self Documenting Commands                                                     #
