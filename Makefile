@@ -112,7 +112,7 @@ vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INT
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
 		--prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-        --models_dir model/vgg16_head_top_2000 \
+        --models_dir models/vgg16_head_top_2000 \
 		--batch_size 250
 
 #################################################################################
