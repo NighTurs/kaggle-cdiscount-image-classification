@@ -100,7 +100,7 @@ ${DATA_INTERIM}/category_idx.csv: ${DATA_INTERIM}/train_product_info.csv
 ## Create top 2000 categories sample
 top_2000_sample: ${DATA_INTERIM}/top_2000_sample_product_info.csv
 
-${DATA_INTERIM}/top_2000_sample_product_info.csv:
+${DATA_INTERIM}/top_2000_sample_product_info.csv: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.data.top_categories_sample \
 		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_file ${DATA_INTERIM}/top_2000_sample_product_info.csv \
