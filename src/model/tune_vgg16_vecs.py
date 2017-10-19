@@ -23,7 +23,7 @@ PREDICTIONS_FILE = 'predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 100000
 
 
-def train_data(bcolz_root, prod_info, category_idx, only_first_image):
+def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size):
     images_df = create_images_df(prod_info, only_first_image)
     split = train_slit(prod_info.shape[0])
 
@@ -39,10 +39,10 @@ def train_data(bcolz_root, prod_info, category_idx, only_first_image):
 
     train_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=train_idxs,
                              y=cat_idxs['category_idx'].iloc[train_idxs].as_matrix(),
-                             num_classes=num_classes, seed=123)
+                             num_classes=num_classes, seed=123, batch_size=batch_size)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
                              y=cat_idxs['category_idx'].iloc[valid_idxs].as_matrix(),
-                             num_classes=num_classes, seed=124)
+                             num_classes=num_classes, seed=124, batch_size=batch_size)
     return train_it, valid_it, num_classes
 
 
@@ -53,7 +53,7 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
     else:
         inp = Input((512, 2, 2))
         x = Flatten()(inp)
-        x = Dense(512, activation='relu')(x)
+        x = Dense(1024, activation='relu')(x)
         x = BatchNormalization(axis=-1)(x)
         x = Dense(num_classes, activation='softmax')(x)
         model = Model(inp, x)
@@ -125,7 +125,8 @@ if __name__ == '__main__':
     category_idx = pd.read_csv(args.category_idx_csv)
 
     if args.is_fit:
-        train_it, valid_it, num_classes = train_data(args.bcolz_root, prod_info, category_idx, args.only_first_image)
+        train_it, valid_it, num_classes = train_data(args.bcolz_root, prod_info, category_idx, args.only_first_image,
+                                                     args.batch_size)
         fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs)
     if args.is_predict:
         out_df = predict(args.bcolz_root, prod_info, args.models_dir, args.only_first_image)
