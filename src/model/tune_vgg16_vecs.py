@@ -42,7 +42,7 @@ def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size
                              num_classes=num_classes, seed=123, batch_size=batch_size)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
                              y=cat_idxs['category_idx'].iloc[valid_idxs].as_matrix(),
-                             num_classes=num_classes, seed=124, batch_size=batch_size)
+                             num_classes=num_classes, seed=124, batch_size=batch_size, shuffle=False)
     return train_it, valid_it, num_classes
 
 
