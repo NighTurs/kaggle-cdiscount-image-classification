@@ -117,6 +117,11 @@ vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INT
 		--batch_size 250 \
 		--shuffle 123
 
+${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.data.train_split \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/train_split.csv
+
 #################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################
