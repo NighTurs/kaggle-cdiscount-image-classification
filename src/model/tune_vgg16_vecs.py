@@ -12,7 +12,6 @@ from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 from ..data.category_idx import map_categories
-from ..data.train_split import train_slit
 from .bcolz_iterator import BcolzIterator
 from .vgg16_vecs import create_images_df
 
@@ -23,29 +22,28 @@ PREDICTIONS_FILE = 'predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 100000
 
 
-def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size, shuffle=None):
-    images_df = create_images_df(prod_info, only_first_image)
-    split = train_slit(prod_info.shape[0])
-
-    prod_info['category_idx'] = map_categories(category_idx, prod_info['category_id'])
-    prod_info['train'] = split
-
-    cat_idxs = images_df.merge(prod_info, on='product_id', how='left')[['category_idx', 'train']]
+def train_data(bcolz_root, bcolz_prod_info, sample_prod_info, train_split, category_idx, only_first_image, batch_size,
+               shuffle=None):
+    images_df = create_images_df(bcolz_prod_info, only_first_image)
+    bcolz_prod_info['category_idx'] = map_categories(category_idx, bcolz_prod_info['category_id'])
+    bcolz_prod_info = bcolz_prod_info.merge(train_split, on='product_id', how='left')
+    cat_idxs = images_df.merge(bcolz_prod_info, on='product_id', how='left')[['product_id', 'category_idx', 'train']]
     if shuffle:
         np.random.seed(shuffle)
         perm = np.random.permutation(cat_idxs.shape[0])
         cat_idxs = cat_idxs.reindex(perm)
-    idxs = np.arange(cat_idxs.shape[0])
+        cat_idxs.reset_index(drop=True, inplace=True)
+    cat_idxs = cat_idxs[cat_idxs.product_id.isin(sample_prod_info.product_id)]
+    idxs = cat_idxs.index.values
     train_idxs = idxs[cat_idxs['train']]
     valid_idxs = idxs[~cat_idxs['train']]
-
     num_classes = np.unique(cat_idxs['category_idx']).size
 
     train_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=train_idxs,
-                             y=cat_idxs['category_idx'].iloc[train_idxs].as_matrix(),
+                             y=cat_idxs['category_idx'].loc[train_idxs].as_matrix(),
                              num_classes=num_classes, seed=123, batch_size=batch_size, shuffle=True)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
-                             y=cat_idxs['category_idx'].iloc[valid_idxs].as_matrix(),
+                             y=cat_idxs['category_idx'].loc[valid_idxs].as_matrix(),
                              num_classes=num_classes, seed=124, batch_size=batch_size, shuffle=False)
     return train_it, valid_it, num_classes
 
@@ -111,8 +109,11 @@ if __name__ == '__main__':
     parser.add_argument('--fit', action='store_true', dest='is_fit')
     parser.add_argument('--predict', action='store_true', dest='is_predict')
     parser.add_argument('--bcolz_root', required=True, help='VGG16 vecs bcolz root path')
-    parser.add_argument('--prod_info_csv', required=True, help='Path to prod info csv')
+    parser.add_argument('--bcolz_prod_info_csv', required=True,
+                        help='Path to prod info csv with which VGG16 were generated')
+    parser.add_argument('--sample_prod_info_csv', required=True, help='Path to sample prod info csv')
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
+    parser.add_argument('--train_split_csv', required=True, help='Train split csv')
     parser.add_argument('--models_dir', required=True, help='Output directory for models snapshots')
     parser.add_argument('--lr', type=float, default=0.001, required=False, help='Learning rate')
     parser.add_argument('--batch_size', type=int, default=64, required=False, help='Batch size')
@@ -127,13 +128,18 @@ if __name__ == '__main__':
     if not os.path.isdir(args.models_dir):
         os.mkdir(args.models_dir)
 
-    prod_info = pd.read_csv(args.prod_info_csv)
+    bcolz_prod_info = pd.read_csv(args.bcolz_prod_info_csv)
+    sample_prod_info = pd.read_csv(args.sample_prod_info_csv)
+    train_split = pd.read_csv(args.train_split_csv)
     category_idx = pd.read_csv(args.category_idx_csv)
 
     if args.is_fit:
-        train_it, valid_it, num_classes = train_data(args.bcolz_root, prod_info, category_idx, args.only_first_image,
+        train_it, valid_it, num_classes = train_data(args.bcolz_root, bcolz_prod_info, sample_prod_info,
+                                                     train_split,
+                                                     category_idx,
+                                                     args.only_first_image,
                                                      args.batch_size, args.shuffle)
         fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs)
     if args.is_predict:
-        out_df = predict(args.bcolz_root, prod_info, args.models_dir, args.only_first_image)
+        out_df = predict(args.bcolz_root, bcolz_prod_info, args.models_dir, args.only_first_image)
         out_df.to_csv(os.path.join(args.models_dir, PREDICTIONS_FILE), index=False)

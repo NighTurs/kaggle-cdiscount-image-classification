@@ -108,13 +108,17 @@ ${DATA_INTERIM}/top_2000_sample_product_info.csv: ${DATA_INTERIM}/train_product_
 		--num_categories 2000
 
 ## Train head dense layer of VGG16 on top 2000 categories
-vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv
+vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
-		--prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_top_2000 \
 		--batch_size 250 \
+		--lr 0.001 \
 		--shuffle 123
 
 ${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
