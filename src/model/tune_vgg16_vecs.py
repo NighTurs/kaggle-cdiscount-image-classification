@@ -23,7 +23,7 @@ PREDICTIONS_FILE = 'predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 100000
 
 
-def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size):
+def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size, shuffle=None):
     images_df = create_images_df(prod_info, only_first_image)
     split = train_slit(prod_info.shape[0])
 
@@ -31,6 +31,10 @@ def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size
     prod_info['train'] = split
 
     cat_idxs = images_df.merge(prod_info, on='product_id', how='left')[['category_idx', 'train']]
+    if shuffle:
+        np.random.seed(shuffle)
+        perm = np.random.permutation(cat_idxs.shape[0])
+        cat_idxs = cat_idxs.reindex(perm)
     idxs = np.arange(cat_idxs.shape[0])
     train_idxs = idxs[cat_idxs['train']]
     valid_idxs = idxs[~cat_idxs['train']]
@@ -39,7 +43,7 @@ def train_data(bcolz_root, prod_info, category_idx, only_first_image, batch_size
 
     train_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=train_idxs,
                              y=cat_idxs['category_idx'].iloc[train_idxs].as_matrix(),
-                             num_classes=num_classes, seed=123, batch_size=batch_size)
+                             num_classes=num_classes, seed=123, batch_size=batch_size, shuffle=True)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
                              y=cat_idxs['category_idx'].iloc[valid_idxs].as_matrix(),
                              num_classes=num_classes, seed=124, batch_size=batch_size, shuffle=False)
@@ -115,6 +119,8 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=1, required=False, help='Number of epochs')
     parser.add_argument('--only_first_image', dest='only_first_image', action='store_true',
                         help="Include only first image from each product")
+    parser.add_argument('--shuffle', type=int, default=None, required=False,
+                        help='If products should be shuffled, provide seed')
     parser.set_defaults(only_first_image=False)
 
     args = parser.parse_args()
@@ -126,7 +132,7 @@ if __name__ == '__main__':
 
     if args.is_fit:
         train_it, valid_it, num_classes = train_data(args.bcolz_root, prod_info, category_idx, args.only_first_image,
-                                                     args.batch_size)
+                                                     args.batch_size, args.shuffle)
         fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs)
     if args.is_predict:
         out_df = predict(args.bcolz_root, prod_info, args.models_dir, args.only_first_image)
