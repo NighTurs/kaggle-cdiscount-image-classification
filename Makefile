@@ -113,7 +113,8 @@ vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INT
 		--prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
         --models_dir models/vgg16_head_top_2000 \
-		--batch_size 250
+		--batch_size 250 \
+		--shuffle 123
 
 #################################################################################
 # Self Documenting Commands                                                     #
