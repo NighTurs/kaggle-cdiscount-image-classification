@@ -81,7 +81,8 @@ train_vgg16_vecs: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.vgg16_vecs --bson ${TRAIN_BSON} \
 		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_dir ${TRAIN_VGG16_VECS_PATH} \
-		--save_step 100000
+		--save_step 100000 \
+		--shuffle 123
 
 ## Precompute ResNet50 vectors for test dataset
 test_resnet50_vecs: ${DATA_INTERIM}/test_product_info.csv
