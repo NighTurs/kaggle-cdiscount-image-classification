@@ -9,6 +9,7 @@ from keras.layers import Flatten
 from keras.layers import Input
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
+from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 from ..data.category_idx import map_categories
@@ -23,7 +24,7 @@ MAX_PREDICTIONS_AT_TIME = 100000
 
 
 def train_data(bcolz_root, bcolz_prod_info, sample_prod_info, train_split, category_idx, only_first_image, batch_size,
-               shuffle=None):
+               shuffle=None, batch_seed=123):
     images_df = create_images_df(bcolz_prod_info, only_first_image)
     bcolz_prod_info['category_idx'] = map_categories(category_idx, bcolz_prod_info['category_id'])
     bcolz_prod_info = bcolz_prod_info.merge(train_split, on='product_id', how='left')
@@ -41,27 +42,95 @@ def train_data(bcolz_root, bcolz_prod_info, sample_prod_info, train_split, categ
 
     train_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=train_idxs,
                              y=cat_idxs['category_idx'].loc[train_idxs].as_matrix(),
-                             num_classes=num_classes, seed=123, batch_size=batch_size, shuffle=True)
+                             num_classes=num_classes, seed=batch_seed, batch_size=batch_size, shuffle=True)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
                              y=cat_idxs['category_idx'].loc[valid_idxs].as_matrix(),
-                             num_classes=num_classes, seed=124, batch_size=batch_size, shuffle=False)
+                             num_classes=num_classes, batch_size=batch_size, shuffle=False)
     return train_it, valid_it, num_classes
 
 
-def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=64, epochs=1):
+def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=64, epochs=1, mode=0):
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
     else:
-        inp = Input((512, 2, 2))
-        x = Flatten()(inp)
-        x = Dense(1024, activation='relu')(x)
-        x = BatchNormalization(axis=-1)(x)
-        x = Dense(num_classes, activation='softmax')(x)
-        model = Model(inp, x)
+        if mode == 0:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 1:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 2:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(512, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 3:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 4:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 5:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(512, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 6:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(512, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 7:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 8:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(512, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(512, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
 
-    model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
-                  metrics=['sparse_categorical_accuracy'])
+    if mode == 6:
+        model.compile(optimizer=SGD(lr=lr), loss='sparse_categorical_crossentropy',
+                      metrics=['sparse_categorical_accuracy'])
+    else:
+        model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
+                      metrics=['sparse_categorical_accuracy'])
 
     np.random.seed(125)
     checkpointer = ModelCheckpoint(filepath=os.path.join(models_dir, SNAPSHOT_MODEL))
@@ -123,6 +192,8 @@ if __name__ == '__main__':
     parser.add_argument('--shuffle', type=int, default=None, required=False,
                         help='If products should be shuffled, provide seed')
     parser.set_defaults(only_first_image=False)
+    parser.add_argument('--mode', type=int, default=0, required=False, help='Mode')
+    parser.add_argument('--batch_seed', type=int, default=123, required=False, help='Batch seed')
 
     args = parser.parse_args()
     if not os.path.isdir(args.models_dir):
@@ -138,8 +209,9 @@ if __name__ == '__main__':
                                                      train_split,
                                                      category_idx,
                                                      args.only_first_image,
-                                                     args.batch_size, args.shuffle)
-        fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs)
+                                                     args.batch_size, args.shuffle,
+                                                     args.batch_seed)
+        fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs, args.mode)
     if args.is_predict:
         out_df = predict(args.bcolz_root, bcolz_prod_info, args.models_dir, args.only_first_image)
         out_df.to_csv(os.path.join(args.models_dir, PREDICTIONS_FILE), index=False)

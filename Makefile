@@ -1,5 +1,8 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample
+	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample \
+	vgg16_head_top_2000_02 vgg16_head_top_2000_03 vgg16_head_top_2000_1 vgg16_head_top_2000_2 vgg16_head_top_2000_3 \
+	vgg16_head_top_2000_4 vgg16_head_top_2000_5 vgg16_head_top_2000_62 vgg16_head_top_2000_8 vgg16_head_top_2000_2_64 \
+	vgg16_head_top_2000_7
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -108,7 +111,7 @@ ${DATA_INTERIM}/top_2000_sample_product_info.csv: ${DATA_INTERIM}/train_product_
 		--num_categories 2000
 
 ## Train head dense layer of VGG16 on top 2000 categories
-vgg16_head_top_2000: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+vgg16_head_top_2000_02: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -116,10 +119,166 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000 \
+        --models_dir models/vgg16_head_top_2000_02 \
 		--batch_size 250 \
 		--lr 0.001 \
-		--shuffle 123
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 0
+
+vgg16_head_top_2000_03: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_03 \
+		--batch_size 250 \
+		--lr 0.0001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 0
+
+vgg16_head_top_2000_1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_1 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 1
+
+
+vgg16_head_top_2000_2: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_2 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 2
+
+vgg16_head_top_2000_3: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_3 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 3
+
+vgg16_head_top_2000_4: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_4 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 4
+
+vgg16_head_top_2000_5: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_5 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 5
+
+vgg16_head_top_2000_62: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_62 \
+		--batch_size 250 \
+		--lr 0.01 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 6
+
+vgg16_head_top_2000_7: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_7 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 7
+
+vgg16_head_top_2000_8: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_8 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 8 \
+		--batch_seed 518
+
+vgg16_head_top_2000_2_64: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_2_64 \
+		--batch_size 64 \
+		--lr 0.001 \
+		--epochs 3 \
+		--shuffle 123 \
+		--mode 2 \
+		--batch_seed 438
+
 
 ${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.data.train_split \
