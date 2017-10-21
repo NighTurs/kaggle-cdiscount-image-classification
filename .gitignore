@@ -1,5 +1,6 @@
 .idea
 /data
+/models
 .env
 .ipynb_checkpoints
 nohup.out
