@@ -1,5 +1,5 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample \
+	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample top_3000_sample \
 	vgg16_head_top_2000_v1 vgg16_head_top_2000_v2 vgg16_head_top_2000_v3 vgg16_head_top_2000_v4 vgg16_head_top_2000_v5 \
 	vgg16_head_top_2000_v6 vgg16_head_top_2000_v7 vgg16_head_top_2000_v8 vgg16_head_top_2000_v9 vgg16_head_top_2000_v10 \
 	vgg16_head_top_2000_v11
@@ -109,6 +109,15 @@ ${DATA_INTERIM}/top_2000_sample_product_info.csv: ${DATA_INTERIM}/train_product_
 		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 		--output_file ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--num_categories 2000
+
+## Create top 3000 categories sample
+top_3000_sample: ${DATA_INTERIM}/top_3000_sample_product_info.csv
+
+${DATA_INTERIM}/top_3000_sample_product_info.csv: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.data.top_categories_sample \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--num_categories 3000
 
 ${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.data.train_split \
