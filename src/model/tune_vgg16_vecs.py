@@ -7,6 +7,7 @@ from keras.models import load_model
 from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers import Input
+from keras.layers import Dropout
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
 from keras.optimizers import SGD
@@ -122,6 +123,29 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             x = BatchNormalization(axis=-1)(x)
             x = Dense(1024, activation='relu')(x)
             x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 9:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 10:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 11:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dropout(0.5)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model(inp, x)
 
