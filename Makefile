@@ -1,8 +1,8 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
 	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample \
-	vgg16_head_top_2000_02 vgg16_head_top_2000_03 vgg16_head_top_2000_1 vgg16_head_top_2000_2 vgg16_head_top_2000_3 \
-	vgg16_head_top_2000_4 vgg16_head_top_2000_5 vgg16_head_top_2000_62 vgg16_head_top_2000_8 vgg16_head_top_2000_2_64 \
-	vgg16_head_top_2000_7
+	vgg16_head_top_2000_v1 vgg16_head_top_2000_v2 vgg16_head_top_2000_v3 vgg16_head_top_2000_v4 vgg16_head_top_2000_v5 \
+	vgg16_head_top_2000_v6 vgg16_head_top_2000_v7 vgg16_head_top_2000_v8 vgg16_head_top_2000_v9 vgg16_head_top_2000_v10 \
+	vgg16_head_top_2000_v11
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -110,8 +110,13 @@ ${DATA_INTERIM}/top_2000_sample_product_info.csv: ${DATA_INTERIM}/train_product_
 		--output_file ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--num_categories 2000
 
-## Train head dense layer of VGG16 on top 2000 categories
-vgg16_head_top_2000_02: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.data.train_split \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_file ${DATA_INTERIM}/train_split.csv
+
+## Train head dense layer of VGG16 on top 2000 categories V1
+vgg16_head_top_2000_v1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -119,14 +124,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_02 \
+        --models_dir models/vgg16_head_top_2000_v1 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 0
 
-vgg16_head_top_2000_03: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V2
+vgg16_head_top_2000_v2: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -134,14 +140,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_03 \
+        --models_dir models/vgg16_head_top_2000_v2 \
 		--batch_size 250 \
 		--lr 0.0001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 0
 
-vgg16_head_top_2000_1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V3
+vgg16_head_top_2000_v3: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -149,15 +156,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_1 \
+        --models_dir models/vgg16_head_top_2000_v3 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 1
 
-
-vgg16_head_top_2000_2: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V4
+vgg16_head_top_2000_v4: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -165,14 +172,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_2 \
+        --models_dir models/vgg16_head_top_2000_v4 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 2
 
-vgg16_head_top_2000_3: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V5
+vgg16_head_top_2000_v5: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -180,14 +188,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_3 \
+        --models_dir models/vgg16_head_top_2000_v5 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 3
 
-vgg16_head_top_2000_4: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V6
+vgg16_head_top_2000_v6: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -195,14 +204,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_4 \
+        --models_dir models/vgg16_head_top_2000_v6 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 4
 
-vgg16_head_top_2000_5: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V7
+vgg16_head_top_2000_v7: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -210,14 +220,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_5 \
+        --models_dir models/vgg16_head_top_2000_v7 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 5
 
-vgg16_head_top_2000_62: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V8
+vgg16_head_top_2000_v8: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -225,14 +236,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_62 \
+        --models_dir models/vgg16_head_top_2000_v8 \
 		--batch_size 250 \
 		--lr 0.01 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 6
 
-vgg16_head_top_2000_7: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V9
+vgg16_head_top_2000_v9: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -240,14 +252,15 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_7 \
+        --models_dir models/vgg16_head_top_2000_v9 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 7
 
-vgg16_head_top_2000_8: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V10
+vgg16_head_top_2000_v10: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -255,7 +268,7 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_8 \
+        --models_dir models/vgg16_head_top_2000_v10 \
 		--batch_size 250 \
 		--lr 0.001 \
 		--epochs 3 \
@@ -263,7 +276,8 @@ ${DATA_INTERIM}/train_split.csv
 		--mode 8 \
 		--batch_seed 518
 
-vgg16_head_top_2000_2_64: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+## Train head dense layer of VGG16 on top 2000 categories V11
+vgg16_head_top_2000_v11: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
 		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
@@ -271,19 +285,13 @@ ${DATA_INTERIM}/train_split.csv
 		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_2_64 \
+        --models_dir models/vgg16_head_top_2000_v11 \
 		--batch_size 64 \
 		--lr 0.001 \
 		--epochs 3 \
 		--shuffle 123 \
 		--mode 2 \
 		--batch_seed 438
-
-
-${DATA_INTERIM}/train_split.csv: ${DATA_INTERIM}/train_product_info.csv
-	pipenv run $(PYTHON_INTERPRETER) -m src.data.train_split \
-		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
-		--output_file ${DATA_INTERIM}/train_split.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
