@@ -21,7 +21,7 @@ LOAD_MODEL = 'model.h5'
 SNAPSHOT_MODEL = 'model.h5'
 LOG_FILE = 'training.log'
 PREDICTIONS_FILE = 'predictions.csv'
-MAX_PREDICTIONS_AT_TIME = 100000
+MAX_PREDICTIONS_AT_TIME = 50000
 
 
 def train_data(bcolz_root, bcolz_prod_info, sample_prod_info, train_split, category_idx, only_first_image, batch_size,
@@ -167,7 +167,7 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
                         callbacks=[checkpointer, csv_logger])
 
 
-def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200, top_k=20):
+def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200, top_k=10):
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
@@ -177,12 +177,12 @@ def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200,
     it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=np.arange(images_df.shape[0]), batch_size=batch_size,
                        shuffle=False)
 
-    out_df = pd.DataFrame()
+    dfs = []
     steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
 
     while offset < images_df.shape[0]:
-        preds = model.predict_generator(it, steps, verbose=1)
+        preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size), verbose=1)
         top_k_preds = np.argpartition(preds, -top_k)[:, -top_k:]
         chunk = []
         for i in range(top_k_preds.shape[0]):
@@ -191,10 +191,12 @@ def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200,
             for pred_idx in range(top_k):
                 chunk.append((product_id, img_idx, top_k_preds[i, pred_idx], preds[i, top_k_preds[i, pred_idx]]))
         chunk_df = pd.DataFrame(chunk, columns=['product_id', 'img_idx', 'category_idx', 'prob'])
-        out_df = pd.concat([out_df, chunk_df])
+        dfs.append(chunk_df)
         offset += top_k_preds.shape[0]
         del top_k_preds
-    return out_df
+        del preds
+        del chunk
+    return pd.concat(dfs)
 
 
 if __name__ == '__main__':
