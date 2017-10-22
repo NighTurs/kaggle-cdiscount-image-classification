@@ -8,6 +8,7 @@
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
 	vgg16_head_top_2000_v10_test vgg16_head_top_3000_v1_test vgg16_head_full_v1_test \
 	vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
+	vgg16_head_full_v1_submission
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -545,6 +546,15 @@ vgg16_head_full_v1_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/c
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_full_v1 \
 		--batch_size 250
+
+## From submission for VGG16 on all categories V1
+vgg16_head_full_v1_submission: data/processed/vgg16_head_full_v1_submission.csv
+
+data/processed/vgg16_head_full_v1_submission.csv: models/vgg16_head_full_v1/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
+		--preds_csv models/vgg16_head_full_v1/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/vgg16_head_full_v1_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
