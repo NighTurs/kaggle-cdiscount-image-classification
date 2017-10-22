@@ -174,15 +174,15 @@ def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200,
     else:
         raise ValueError("Model doesn't exist")
     images_df = create_images_df(prod_info, only_first_image)
-    it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=np.arange(images_df.shape[0]), batch_size=batch_size,
-                       shuffle=False)
-
     dfs = []
     steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
-
     while offset < images_df.shape[0]:
-        preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size), verbose=1)
+        it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=np.arange(offset, images_df.shape[0]),
+                           batch_size=batch_size,
+                           shuffle=False)
+        preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size),
+                                        verbose=1, max_queue_size=5)
         top_k_preds = np.argpartition(preds, -top_k)[:, -top_k:]
         chunk = []
         for i in range(top_k_preds.shape[0]):

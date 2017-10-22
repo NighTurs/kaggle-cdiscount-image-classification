@@ -14,6 +14,7 @@ class BcolzIterator():
         self.num_classes = num_classes
         self.samples = len(self.x_idxs)
         self.batch_size = batch_size
+        assert CHUNK_SIZE % batch_size == 0
         self.shuffle = shuffle
         if seed:
             np.random.seed(seed)
