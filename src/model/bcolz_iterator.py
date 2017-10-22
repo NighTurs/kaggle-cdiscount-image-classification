@@ -41,7 +41,8 @@ class BcolzIterator():
         self.thread = threading.Thread(target=self.preload, args=(self.next_idx,))
         self.thread.start()
 
-        self.chunk_y = self.y[(CHUNK_SIZE * self.chunk_idx):(CHUNK_SIZE * self.chunk_idx + CHUNK_SIZE)]
+        if self.y is not None:
+            self.chunk_y = self.y[(CHUNK_SIZE * self.chunk_idx):(CHUNK_SIZE * self.chunk_idx + CHUNK_SIZE)]
         self.chunk_seen = 0
         self.it = Iterator(len(idxs), self.batch_size, self.shuffle, None)
 
