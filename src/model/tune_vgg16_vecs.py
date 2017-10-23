@@ -148,6 +148,26 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             x = Dropout(0.5)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model(inp, x)
+        elif mode == 12:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 13:
+            inp = Input((512, 2, 2))
+            x = Flatten()(inp)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dropout(0.5)(x)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dropout(0.5)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
 
     if mode == 6:
         model.compile(optimizer=SGD(lr=lr), loss='sparse_categorical_crossentropy',
