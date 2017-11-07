@@ -1,5 +1,5 @@
 .PHONY: clean data lint requirements product_info big_sample big_sample_vgg16_vecs big_sample_resnet50_vecs \
-	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs category_indexes top_2000_sample top_3000_sample \
+	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs train_resnet50_vecs category_indexes top_2000_sample top_3000_sample \
 	vgg16_head_top_2000_v1 vgg16_head_top_2000_v2 vgg16_head_top_2000_v3 vgg16_head_top_2000_v4 vgg16_head_top_2000_v5 \
 	vgg16_head_top_2000_v6 vgg16_head_top_2000_v7 vgg16_head_top_2000_v8 vgg16_head_top_2000_v9 vgg16_head_top_2000_v10 \
 	vgg16_head_top_2000_v11 vgg16_head_top_3000_v1 vgg16_head_full_v1 \
@@ -101,6 +101,14 @@ test_resnet50_vecs: ${DATA_INTERIM}/test_product_info.csv
 		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
 		--output_dir ${TEST_RESNET50_VECS_PATH} \
 		--save_step 100000
+
+## Precompute ResNet50 vectors for train dataset
+train_resnet50_vecs: ${DATA_INTERIM}/train_product_info.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.resnet50_vecs --bson ${TRAIN_BSON} \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--output_dir ${TRAIN_RESNET50_VECS_PATH} \
+		--save_step 100000 \
+		--shuffle 123
 
 ## Create category indexes
 category_indexes: ${DATA_INTERIM}/category_idx.csv

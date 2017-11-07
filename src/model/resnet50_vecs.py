@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import argparse
 import os
 import bcolz
@@ -69,10 +70,17 @@ if __name__ == '__main__':
     parser.add_argument('--save_step', type=int, required=True, help='Save computed vectors to disk each N steps')
     parser.add_argument('--only_first_image', dest='only_first_image', action='store_true',
                         help="Include only first image from each product")
+    parser.add_argument('--shuffle', type=int, default=None, required=False,
+                        help='If products should be shuffled, provide seed')
     parser.set_defaults(only_first_image=False)
 
     args = parser.parse_args()
     product_info = pd.read_csv(args.prod_info_csv)
 
     images_df = create_images_df(product_info, args.only_first_image)
+    if args.shuffle:
+        np.random.seed(args.shuffle)
+        perm = np.random.permutation(images_df.shape[0])
+        images_df = images_df.reindex(perm)
+
     compute_vgg16_vecs(args.bson, images_df, args.output_dir, args.save_step)
