@@ -8,6 +8,8 @@ from .bson_iterator import BSONIterator
 from keras.applications.resnet50 import ResNet50
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Flatten
+from keras.models import Model
 import threading
 
 
@@ -37,7 +39,9 @@ def compute_vgg16_vecs(bson_path, images_df, vecs_output_dir, save_step=100000):
                                    shuffle=False,
                                    with_labels=False)
 
-            out_vecs = resnet_model.predict_generator(batches,
+            x = Flatten()(resnet_model.output)
+            model = Model(resnet_model.input, x)
+            out_vecs = model.predict_generator(batches,
                                                       steps=batches.samples / batches.batch_size,
                                                       verbose=1)
             if not vecs:
