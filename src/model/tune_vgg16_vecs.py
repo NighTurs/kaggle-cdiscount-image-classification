@@ -21,6 +21,7 @@ LOAD_MODEL = 'model.h5'
 SNAPSHOT_MODEL = 'model.h5'
 LOG_FILE = 'training.log'
 PREDICTIONS_FILE = 'predictions.csv'
+VALID_PREDICTIONS_FILE = 'valid_predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 50000
 
 
@@ -198,18 +199,27 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
                         callbacks=[checkpointer, csv_logger])
 
 
-def predict(bcolz_root, prod_info, models_dir, only_first_image, batch_size=200, top_k=10):
+def predict(bcolz_root, prod_info, sample_prod_info, models_dir, only_first_image, batch_size=200, shuffle=None,
+            top_k=10):
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
     else:
         raise ValueError("Model doesn't exist")
     images_df = create_images_df(prod_info, only_first_image)
+    if shuffle:
+        np.random.seed(shuffle)
+        perm = np.random.permutation(images_df.shape[0])
+        images_df = images_df.reindex(perm)
+        images_df.reset_index(drop=True, inplace=True)
+    if sample_prod_info is not None:
+        images_df = images_df[images_df.product_id.isin(sample_prod_info.product_id)]
+    idxs = images_df.index.values
     dfs = []
     steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
     while offset < images_df.shape[0]:
-        it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=np.arange(offset, images_df.shape[0]),
+        it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=idxs[offset:],
                            batch_size=batch_size,
                            shuffle=False)
         preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size),
@@ -234,6 +244,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--fit', action='store_true', dest='is_fit')
     parser.add_argument('--predict', action='store_true', dest='is_predict')
+    parser.add_argument('--predict_valid', action='store_true', dest='is_predict_valid')
     parser.add_argument('--bcolz_root', required=True, help='VGG16 vecs bcolz root path')
     parser.add_argument('--bcolz_prod_info_csv', required=True,
                         help='Path to prod info csv with which VGG16 were generated')
@@ -269,6 +280,11 @@ if __name__ == '__main__':
                                                      args.batch_size, args.shuffle,
                                                      args.batch_seed)
         fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs, args.mode)
-    if args.is_predict:
-        out_df = predict(args.bcolz_root, bcolz_prod_info, args.models_dir, args.only_first_image)
+    elif args.is_predict:
+        out_df = predict(args.bcolz_root, bcolz_prod_info, sample_prod_info, args.models_dir, args.only_first_image)
         out_df.to_csv(os.path.join(args.models_dir, PREDICTIONS_FILE), index=False)
+    elif args.is_predict_valid:
+        only_valids = bcolz_prod_info[bcolz_prod_info.product_id.isin(train_split[train_split.train == False].product_id)]
+        out_df = predict(args.bcolz_root, bcolz_prod_info, only_valids, args.models_dir, args.only_first_image,
+                         shuffle=args.shuffle)
+        out_df.to_csv(os.path.join(args.models_dir, VALID_PREDICTIONS_FILE), index=False)
