@@ -2,15 +2,14 @@
 	test_vgg16_vecs train_vgg16_vecs test_resnet50_vecs train_resnet50_vecs category_indexes top_2000_sample top_3000_sample \
 	vgg16_head_top_2000_v1 vgg16_head_top_2000_v2 vgg16_head_top_2000_v3 vgg16_head_top_2000_v4 vgg16_head_top_2000_v5 \
 	vgg16_head_top_2000_v6 vgg16_head_top_2000_v7 vgg16_head_top_2000_v8 vgg16_head_top_2000_v9 vgg16_head_top_2000_v10 \
-	vgg16_head_top_2000_v11 vgg16_head_top_3000_v1 vgg16_head_full_v1 \
-	vgg16_head_top_2000_v12 vgg16_head_top_2000_v13 vgg16_head_top_2000_v14 \
+	vgg16_head_top_2000_v11 vgg16_head_top_2000_v12 vgg16_head_top_2000_v13 vgg16_head_top_2000_v14 vgg16_head_top_2000_v15 \
+	vgg16_head_top_2000_v16 vgg16_head_top_2000_v17 vgg16_head_top_2000_v18 vgg16_head_top_2000_v19 vgg16_head_top_2000_v20 \
+	vgg16_head_top_3000_v1 vgg16_head_full_v1 \
 	vgg16_head_top_2000_v1_test vgg16_head_top_2000_v2_test vgg16_head_top_2000_v3_test vgg16_head_top_2000_v4_test \
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
-	vgg16_head_top_2000_v10_test vgg16_head_top_3000_v1_test vgg16_head_full_v1_test \
-	vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_tzest \
-	vgg16_head_full_v1_submission vgg16_head_top_2000_v15 vgg16_head_top_2000_v16 vgg16_head_top_2000_v17 \
-	vgg16_head_top_2000_v18 vgg16_head_top_2000_v18_test vgg16_head_top_2000_v18_submission \
-	vgg16_head_top_2000_v19 vgg16_head_top_2000_v20 heng_inception3_test heng_inception3_submission heng_seinception3_test \
+	vgg16_head_top_2000_v10_test vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
+	vgg16_head_top_2000_v18_test vgg16_head_top_3000_v1_test vgg16_head_full_v1_test heng_inception3_test heng_seinception3_test \
+	vgg16_head_top_2000_v18_submission heng_inception3_submission vgg16_head_full_v1_submission
 
 
 #################################################################################
@@ -583,6 +582,15 @@ vgg16_head_top_2000_v18_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTER
         --models_dir models/vgg16_head_top_2000_v18 \
 		--batch_size 250
 
+## Form submission for VGG16 on top 2000 categories V18
+vgg16_head_top_2000_v18_submission: data/processed/vgg16_head_top_2000_v18_submission.csv
+
+data/processed/vgg16_head_top_2000_v18_submission.csv: models/vgg16_head_top_2000_v18/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
+		--preds_csv models/vgg16_head_top_2000_v18/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/vgg16_head_top_2000_v18_submission.csv
+
 ## Train head dense layer of VGG16 on top 2000 categories V19
 vgg16_head_top_2000_v19: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
@@ -684,15 +692,6 @@ data/processed/vgg16_head_full_v1_submission.csv: models/vgg16_head_full_v1/pred
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/vgg16_head_full_v1_submission.csv
 
-## Form submission for VGG16 on top 2000 categories V18
-vgg16_head_top_2000_v18_submission: data/processed/vgg16_head_top_2000_v18_submission.csv
-
-data/processed/vgg16_head_top_2000_v18_submission.csv: models/vgg16_head_top_2000_v18/predictions.csv ${DATA_INTERIM}/category_idx.csv
-	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
-		--preds_csv models/vgg16_head_top_2000_v18/predictions.csv \
-		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-		--output_file data/processed/vgg16_head_top_2000_v18_submission.csv
-
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_inception3_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -705,6 +704,15 @@ models/LB_0_69565_inc3_00075000_model
 		--batch_size 250 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
 
+## Form submission for Inception3 model by Heng Cherkeng
+heng_inception3_submission: data/processed/heng_inception3_submission.csv
+
+data/processed/heng_inception3_submission.csv: models/LB_0_69565_inc3_00075000_model/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
+		--preds_csv models/LB_0_69565_inc3_00075000_model/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/heng_inception3_submission.csv
+
 ## Predict SEInception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_seinception3_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -716,15 +724,6 @@ models/LB_0_69673_se_inc3_00026000_model
 		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
 		--batch_size 500 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
-
-## Form submission for Inception3 model by Heng Cherkeng
-heng_inception3_submission: data/processed/heng_inception3_submission.csv
-
-data/processed/heng_inception3_submission.csv: models/LB_0_69565_inc3_00075000_model/predictions.csv ${DATA_INTERIM}/category_idx.csv
-	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
-		--preds_csv models/LB_0_69565_inc3_00075000_model/predictions.csv \
-		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-		--output_file data/processed/heng_inception3_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
