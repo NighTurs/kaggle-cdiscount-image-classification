@@ -933,6 +933,30 @@ ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/cat
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 			--model_dir models/ensemble_nn_vgg16_v1
 
+## Train ensemble of VGG16 models V2
+ensemble_nn_vgg16_v2: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/valid_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_predictions.csv \
+				models/vgg16_head_top_2000_v6/valid_predictions.csv \
+				models/vgg16_head_top_2000_v7/valid_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_predictions.csv \
+				models/vgg16_head_full_v1/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_v2 \
+			--lr 0.1
+
 ## Predict ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1_test: models/ensemble_nn_vgg16_v1/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \

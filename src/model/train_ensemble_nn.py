@@ -45,7 +45,7 @@ class SpecialIterator(Iterator):
         return [m, p[:,:CATEGORIES_SPLIT,:], p[:,CATEGORIES_SPLIT:,:]], cats['category_idx'].as_matrix()
 
 
-def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir):
+def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr):
     prod_info = pd.read_csv(prod_info_csv)
     category_idx = pd.read_csv(category_idx_csv)
 
@@ -90,7 +90,7 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
     x = merge([preds_cat1_inp, mul_cat1, preds_cat2_inp, mul_cat2], mode=op, output_shape=(N_CATEGORIES,))
 
     model = Model([model_inp, preds_cat1_inp, preds_cat2_inp], x)
-    model.compile(optimizer=Adam(lr=0.01), loss='sparse_categorical_crossentropy',
+    model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
 
     model.fit_generator(it, steps_per_epoch=it.samples / it.batch_size, epochs=1)
@@ -110,6 +110,7 @@ if __name__ == '__main__':
     parser.add_argument('--prod_info_csv', required=True, help='Path to prod info csv')
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
     parser.add_argument('--model_dir', required=True, help='Model directory')
+    parser.add_argument('--lr', type=float, default=0.01, required=False, help='Learning rate')
 
     args = parser.parse_args()
-    train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir)
+    train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr)
