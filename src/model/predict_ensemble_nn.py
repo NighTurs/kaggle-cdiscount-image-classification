@@ -47,7 +47,6 @@ if __name__ == '__main__':
             all_preds.sort_values('prob', inplace=True, ascending=False)
             all_preds = all_preds.groupby(['product_id', 'img_idx'], as_index=False).head(TOP_PREDS)
 
-            print(all_preds.shape)
             whole.append(all_preds)
 
             skiprows += TOP_PREDS * PRODS_BATCH
