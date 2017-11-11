@@ -4,17 +4,21 @@
 	vgg16_head_top_2000_v6 vgg16_head_top_2000_v7 vgg16_head_top_2000_v8 vgg16_head_top_2000_v9 vgg16_head_top_2000_v10 \
 	vgg16_head_top_2000_v11 vgg16_head_top_2000_v12 vgg16_head_top_2000_v13 vgg16_head_top_2000_v14 vgg16_head_top_2000_v15 \
 	vgg16_head_top_2000_v16 vgg16_head_top_2000_v17 vgg16_head_top_2000_v18 vgg16_head_top_2000_v19 vgg16_head_top_2000_v20 \
-	vgg16_head_top_3000_v1 vgg16_head_full_v1 ensemble_nn_vgg16_v1 \
+	vgg16_head_top_3000_v1 vgg16_head_top_3000_v2 vgg16_head_top_3000_v3 vgg16_head_full_v1 vgg16_head_full_v2 \
+	vgg16_head_full_v3 ensemble_nn_vgg16_v1 ensemble_nn_vgg16_v3 \
 	vgg16_head_top_2000_v1_test vgg16_head_top_2000_v2_test vgg16_head_top_2000_v3_test vgg16_head_top_2000_v4_test \
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
 	vgg16_head_top_2000_v10_test vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
-	vgg16_head_top_2000_v18_test vgg16_head_top_3000_v1_test vgg16_head_full_v1_test heng_inception3_test heng_seinception3_test \
-	ensemble_nn_vgg16_v1_test \
+	vgg16_head_top_2000_v18_test vgg16_head_top_2000_v20_test vgg16_head_top_3000_v1_test vgg16_head_top_3000_v3_test \
+	vgg16_head_full_v1_test vgg16_head_full_v3_test heng_inception3_test heng_seinception3_test ensemble_nn_vgg16_v1_test \
+	ensemble_nn_vgg16_v3_test \
 	vgg16_head_top_2000_v1_valid vgg16_head_top_2000_v2_valid vgg16_head_top_2000_v3_valid vgg16_head_top_2000_v4_valid \
 	vgg16_head_top_2000_v6_valid vgg16_head_top_2000_v7_valid vgg16_head_top_2000_v8_valid vgg16_head_top_2000_v9_valid \
 	vgg16_head_top_2000_v10_valid vgg16_head_top_2000_v12_valid vgg16_head_top_2000_v13_valid vgg16_head_top_2000_v14_valid \
-	vgg16_head_top_2000_v18_valid vgg16_head_top_3000_v1_valid vgg16_head_full_v1_valid \
+	vgg16_head_top_2000_v18_valid vgg16_head_top_2000_v20_valid vgg16_head_top_3000_v1_valid vgg16_head_top_3000_v3_valid \
+	vgg16_head_full_v1_valid vgg16_head_full_v3_valid \
 	vgg16_head_top_2000_v18_submission heng_inception3_submission vgg16_head_full_v1_submission ensemble_nn_vgg16_v1_submission \
+	ensemble_nn_vgg16_v3_submission \
 
 
 #################################################################################
@@ -788,6 +792,29 @@ ${DATA_INTERIM}/train_split.csv models/vgg16_head_top_2000_v19/model.h5
 		--mode 14 \
 		--batch_seed 123751
 
+## Predict head dense layer of VGG16 on top 2000 categories V20
+vgg16_head_top_2000_v20_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict \
+		--bcolz_root ${TEST_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v20 \
+		--batch_size 250
+
+## Predict valid head dense layer of VGG16 on top 2000 categories V20
+vgg16_head_top_2000_v20_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict_valid \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v20 \
+		--batch_size 250 \
+		--shuffle 123
+
 ## Train head dense layer of VGG16 on top 3000 categories V1
 vgg16_head_top_3000_v1: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
@@ -825,6 +852,65 @@ vgg16_head_top_3000_v1_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTE
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_top_3000_v1 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of VGG16 on top 3000 categories V2
+vgg16_head_top_3000_v2: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_v2 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 12 \
+		--batch_seed 8183
+
+## Train head dense layer of VGG16 on top 3000 categories V3
+vgg16_head_top_3000_v3: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/vgg16_head_top_3000_v2/model.h5
+	mkdir models/vgg16_head_top_3000_v3 ; \
+	cp models/vgg16_head_top_3000_v2/model.h5 models/vgg16_head_top_3000_v3 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_v3 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 2 \
+		--shuffle 123 \
+		--mode 12 \
+		--batch_seed 8184
+
+## Predict head dense layer of VGG16 on top 3000 categories V3
+vgg16_head_top_3000_v3_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict \
+		--bcolz_root ${TEST_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_v3 \
+		--batch_size 250
+
+## Predict valid head dense layer of VGG16 on top 3000 categories V3
+vgg16_head_top_3000_v3_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict_valid \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_v3 \
 		--batch_size 250 \
 		--shuffle 123
 
@@ -876,6 +962,65 @@ data/processed/vgg16_head_full_v1_submission.csv: models/vgg16_head_full_v1/pred
 		--preds_csv models/vgg16_head_full_v1/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/vgg16_head_full_v1_submission.csv
+
+## Train head dense layer of VGG16 on all categories V2
+vgg16_head_full_v2: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_full_v2 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 12 \
+		--batch_seed 6671
+
+## Train head dense layer of VGG16 on all categories V3
+vgg16_head_full_v3: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/vgg16_head_full_v2/model.h5
+	mkdir models/vgg16_head_full_v3 ; \
+	cp models/vgg16_head_full_v2/model.h5 models/vgg16_head_full_v3 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --fit \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_full_v3 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 2 \
+		--shuffle 123 \
+		--mode 12 \
+		--batch_seed 6672
+
+## Predict head dense layer of VGG16 on all categories V3
+vgg16_head_full_v3_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict \
+		--bcolz_root ${TEST_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_full_v3 \
+		--batch_size 250
+
+## Predict valid head dense layer of VGG16 on all categories V3
+vgg16_head_full_v3_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_vecs --predict_valid \
+		--bcolz_root ${TRAIN_VGG16_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_full_v3 \
+		--batch_size 250 \
+		--shuffle 123
 
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
@@ -933,30 +1078,6 @@ ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/cat
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 			--model_dir models/ensemble_nn_vgg16_v1
 
-## Train ensemble of VGG16 models V2
-ensemble_nn_vgg16_v2: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
-	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
-			--preds_csvs \
-				models/vgg16_head_top_2000_v1/valid_predictions.csv \
-				models/vgg16_head_top_2000_v2/valid_predictions.csv \
-				models/vgg16_head_top_2000_v3/valid_predictions.csv \
-				models/vgg16_head_top_2000_v4/valid_predictions.csv \
-				models/vgg16_head_top_2000_v6/valid_predictions.csv \
-				models/vgg16_head_top_2000_v7/valid_predictions.csv \
-				models/vgg16_head_top_2000_v8/valid_predictions.csv \
-				models/vgg16_head_top_2000_v9/valid_predictions.csv \
-				models/vgg16_head_top_2000_v10/valid_predictions.csv \
-				models/vgg16_head_top_2000_v12/valid_predictions.csv \
-				models/vgg16_head_top_2000_v13/valid_predictions.csv \
-				models/vgg16_head_top_2000_v14/valid_predictions.csv \
-				models/vgg16_head_top_2000_v18/valid_predictions.csv \
-				models/vgg16_head_top_3000_v1/valid_predictions.csv \
-				models/vgg16_head_full_v1/valid_predictions.csv \
-			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
-			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-			--model_dir models/ensemble_nn_vgg16_v2 \
-			--lr 0.1
-
 ## Predict ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1_test: models/ensemble_nn_vgg16_v1/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
@@ -986,6 +1107,90 @@ data/processed/ensemble_nn_vgg16_v1_submission.csv: models/ensemble_nn_vgg16_v1/
 		--preds_csv models/ensemble_nn_vgg16_v1/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_nn_vgg16_v1_submission.csv
+
+## Train ensemble of VGG16 models V2
+ensemble_nn_vgg16_v2: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/valid_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_predictions.csv \
+				models/vgg16_head_top_2000_v6/valid_predictions.csv \
+				models/vgg16_head_top_2000_v7/valid_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_predictions.csv \
+				models/vgg16_head_full_v1/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_v2 \
+			--lr 0.1
+
+## Train ensemble of VGG16 models V3
+ensemble_nn_vgg16_v3: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/valid_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_predictions.csv \
+				models/vgg16_head_top_2000_v6/valid_predictions.csv \
+				models/vgg16_head_top_2000_v7/valid_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_predictions.csv \
+				models/vgg16_head_top_2000_v20/valid_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_predictions.csv \
+				models/vgg16_head_top_3000_v3/valid_predictions.csv \
+				models/vgg16_head_full_v1/valid_predictions.csv \
+				models/vgg16_head_full_v3/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_v3 \
+			--lr 0.1
+
+## Predict ensemble of VGG16 models V3
+ensemble_nn_vgg16_v3_test: models/ensemble_nn_vgg16_v3/model.h5
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/predictions.csv \
+				models/vgg16_head_top_2000_v2/predictions.csv \
+				models/vgg16_head_top_2000_v3/predictions.csv \
+				models/vgg16_head_top_2000_v4/predictions.csv \
+				models/vgg16_head_top_2000_v6/predictions.csv \
+				models/vgg16_head_top_2000_v7/predictions.csv \
+				models/vgg16_head_top_2000_v8/predictions.csv \
+				models/vgg16_head_top_2000_v9/predictions.csv \
+				models/vgg16_head_top_2000_v10/predictions.csv \
+				models/vgg16_head_top_2000_v12/predictions.csv \
+				models/vgg16_head_top_2000_v13/predictions.csv \
+				models/vgg16_head_top_2000_v14/predictions.csv \
+				models/vgg16_head_top_2000_v18/predictions.csv \
+				models/vgg16_head_top_2000_v20/predictions.csv \
+				models/vgg16_head_top_3000_v1/predictions.csv \
+				models/vgg16_head_top_3000_v3/predictions.csv \
+				models/vgg16_head_full_v1/predictions.csv \
+				models/vgg16_head_full_v3/predictions.csv \
+			--model_dir models/ensemble_nn_vgg16_v3
+
+## Form submission for ensemble of VGG16 models V3
+ensemble_nn_vgg16_v3_submission: data/processed/ensemble_nn_vgg16_v3_submission.csv
+
+data/processed/ensemble_nn_vgg16_v3_submission.csv: models/ensemble_nn_vgg16_v3/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
+		--preds_csv models/ensemble_nn_vgg16_v3/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_nn_vgg16_v3_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
