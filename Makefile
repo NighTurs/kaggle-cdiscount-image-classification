@@ -1201,7 +1201,7 @@ ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565
 			--weights 0.37 0.63 \
 			--model_dir models/ensemble_fixed_V1
 
-## Form submission forEnsemble with fixed weights V1
+## Form submission for ensemble with fixed weights V1
 ensemble_fixed_V1_submission: data/processed/ensemble_fixed_V1_submission.csv
 
 data/processed/ensemble_fixed_V1_submission.csv: models/ensemble_fixed_V1/predictions.csv ${DATA_INTERIM}/category_idx.csv
@@ -1219,7 +1219,7 @@ ensemble_fixed_V2: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565
 			--weights 0.2 0.8 \
 			--model_dir models/ensemble_fixed_V2
 
-## Form submission forEnsemble with fixed weights V2
+## Form submission for ensemble with fixed weights V2
 ensemble_fixed_V2_submission: data/processed/ensemble_fixed_V2_submission.csv
 
 data/processed/ensemble_fixed_V2_submission.csv: models/ensemble_fixed_V2/predictions.csv ${DATA_INTERIM}/category_idx.csv
@@ -1227,6 +1227,24 @@ data/processed/ensemble_fixed_V2_submission.csv: models/ensemble_fixed_V2/predic
 		--preds_csv models/ensemble_fixed_V2/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V2_submission.csv
+
+## Ensemble with fixed weights V3
+ensemble_fixed_V3: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/ensemble_nn_vgg16_v1/predictions.csv \
+				models/LB_0_69565_inc3_00075000_model/predictions.csv \
+			--weights 0.43 0.57 \
+			--model_dir models/ensemble_fixed_V3
+
+## Form submission for ensemble with fixed weights V3
+ensemble_fixed_V3_submission: data/processed/ensemble_fixed_V3_submission.csv
+
+data/processed/ensemble_fixed_V3_submission.csv: models/ensemble_fixed_V3/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission \
+		--preds_csv models/ensemble_fixed_V3/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V3_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
