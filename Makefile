@@ -1052,7 +1052,7 @@ models/LB_0_69673_se_inc3_00026000_model
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
 		--bson ${TEST_BSON} \
 		--model_name seinception \
-		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
 		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
 		--batch_size 500 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
