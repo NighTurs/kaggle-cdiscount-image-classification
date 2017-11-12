@@ -8,8 +8,8 @@ import bson
 from tqdm import tqdm
 from torch.autograd import Variable
 import torch.nn.functional as F
-from src.heng_cherkeng.net.model.cdiscount.inception_v3 import Inception3
-from src.heng_cherkeng.net.model.cdiscount.excited_inception_v3 import SEInception3
+from src.heng_cherkeng.inception_v3 import Inception3
+from src.heng_cherkeng.excited_inception_v3 import SEInception3
 from src.data.category_idx import category_to_index_dict
 
 CDISCOUNT_NUM_CLASSES = 5270
