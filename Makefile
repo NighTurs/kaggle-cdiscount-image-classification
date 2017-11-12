@@ -20,7 +20,7 @@
 	vgg16_head_full_v1_valid vgg16_head_full_v3_valid \
 	vgg16_head_top_2000_v18_submission heng_inception3_submission vgg16_head_full_v1_submission ensemble_nn_vgg16_v1_submission \
 	ensemble_nn_vgg16_v3_submission ensemble_fixed_V1_submission ensemble_fixed_V2_submission ensemble_fixed_V3_submission \
-	ensemble_fixed_V4_submission ensemble_nn_vgg16_v3_mul_submission
+	ensemble_fixed_V4_submission ensemble_nn_vgg16_v3_mul_submission ensemble_nn_vgg16_v3_sum_submission
 
 
 #################################################################################
@@ -1202,6 +1202,15 @@ data/processed/ensemble_nn_vgg16_v3_mul_submission.csv: models/ensemble_nn_vgg16
 		--preds_csv models/ensemble_nn_vgg16_v3/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_nn_vgg16_v3_mul_submission.csv
+
+## Form sum submission for ensemble of VGG16 models V3
+ensemble_nn_vgg16_v3_sum_submission: data/processed/ensemble_nn_vgg16_v3_sum_submission.csv
+
+data/processed/ensemble_nn_vgg16_v3_sum_submission.csv: models/ensemble_nn_vgg16_v3/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_nn_vgg16_v3/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_nn_vgg16_v3_sum_submission.csv
 
 ## Ensemble with fixed weights V1
 ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
