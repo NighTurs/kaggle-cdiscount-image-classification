@@ -5,8 +5,8 @@ import numpy as np
 from keras.models import Model
 from keras.models import load_model
 from keras.layers import Dense
-from keras.layers import Flatten
 from keras.layers import Input
+from keras.layers import BatchNormalization
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
@@ -56,6 +56,36 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
         if mode == 0:
             inp = Input((2048,))
             x = Dense(num_classes, activation='softmax')(inp)
+            model = Model(inp, x)
+        elif mode == 1:
+            inp = Input((2048,))
+            x = Dense(4096, activation='relu')(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 2:
+            inp = Input((2048,))
+            x = Dense(4096, activation='relu')(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 3:
+            inp = Input((2048,))
+            x = Dense(2048, activation='relu')(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
+        elif mode == 4:
+            inp = Input((2048,))
+            x = Dense(1024, activation='relu')(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(1024, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
             model = Model(inp, x)
 
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
