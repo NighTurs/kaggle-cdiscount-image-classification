@@ -55,8 +55,7 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
     else:
         if mode == 0:
             inp = Input((2048,))
-            x = Flatten()(inp)
-            x = Dense(num_classes, activation='softmax')(x)
+            x = Dense(num_classes, activation='softmax')(inp)
             model = Model(inp, x)
 
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
