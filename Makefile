@@ -7,18 +7,23 @@
 	vgg16_head_top_3000_v1 vgg16_head_top_3000_v2 vgg16_head_top_3000_v3 vgg16_head_full_v1 vgg16_head_full_v2 \
 	vgg16_head_full_v3 ensemble_nn_vgg16_v1 ensemble_nn_vgg16_v3 ensemble_fixed_V1 ensemble_fixed_V2 ensemble_fixed_V3 \
 	ensemble_fixed_V4 ensemble_fixed_V5 resnet50_head_top_2000_v1 resnet50_head_top_2000_v2 resnet50_head_top_2000_v3 \
-	resnet50_head_top_2000_v4 resnet50_head_top_2000_v5 \
+	resnet50_head_top_2000_v4 resnet50_head_top_2000_v5 resnet50_head_top_2000_v6 resnet50_head_top_2000_v7 \
+	resnet50_head_top_2000_v8 resnet50_head_top_2000_v9 resnet50_head_top_2000_v10 resnet50_head_top_2000_v11 \
 	vgg16_head_top_2000_v1_test vgg16_head_top_2000_v2_test vgg16_head_top_2000_v3_test vgg16_head_top_2000_v4_test \
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
 	vgg16_head_top_2000_v10_test vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
 	vgg16_head_top_2000_v18_test vgg16_head_top_2000_v20_test vgg16_head_top_3000_v1_test vgg16_head_top_3000_v3_test \
-	vgg16_head_full_v1_test vgg16_head_full_v3_test heng_inception3_test heng_seinception3_test ensemble_nn_vgg16_v1_test \
+	vgg16_head_full_v1_test vgg16_head_full_v3_test resnet50_head_top_2000_v7_test resnet50_head_top_2000_v8_test \
+	resnet50_head_top_2000_v9_test resnet50_head_top_2000_v10_test resnet50_head_top_2000_v11_test resnet50_head_top_3000_v2_test \
+	resnet50_head_full_v2_test heng_inception3_test heng_seinception3_test ensemble_nn_vgg16_v1_test \
 	ensemble_nn_vgg16_v3_test \
 	vgg16_head_top_2000_v1_valid vgg16_head_top_2000_v2_valid vgg16_head_top_2000_v3_valid vgg16_head_top_2000_v4_valid \
 	vgg16_head_top_2000_v6_valid vgg16_head_top_2000_v7_valid vgg16_head_top_2000_v8_valid vgg16_head_top_2000_v9_valid \
 	vgg16_head_top_2000_v10_valid vgg16_head_top_2000_v12_valid vgg16_head_top_2000_v13_valid vgg16_head_top_2000_v14_valid \
 	vgg16_head_top_2000_v18_valid vgg16_head_top_2000_v20_valid vgg16_head_top_3000_v1_valid vgg16_head_top_3000_v3_valid \
-	vgg16_head_full_v1_valid vgg16_head_full_v3_valid \
+	vgg16_head_full_v1_valid vgg16_head_full_v3_valid resnet50_head_top_2000_v7_valid resnet50_head_top_2000_v8_valid \
+	resnet50_head_top_2000_v9_valid resnet50_head_top_2000_v10_valid resnet50_head_top_2000_v11_valid resnet50_head_top_3000_v2_valid \
+	resnet50_head_full_v2_valid \
 	vgg16_head_top_2000_v18_submission heng_inception3_submission vgg16_head_full_v1_submission ensemble_nn_vgg16_v1_submission \
 	ensemble_nn_vgg16_v3_submission ensemble_fixed_V1_submission ensemble_fixed_V2_submission ensemble_fixed_V3_submission \
 	ensemble_fixed_V4_submission ensemble_nn_vgg16_v3_mul_submission ensemble_nn_vgg16_v3_sum_submission \
@@ -1147,6 +1152,197 @@ ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v2/model.h5
 		--mode 1 \
 		--batch_seed 56777
 
+## Predict head dense layer of ResNet50 on top 2000 categories V7
+resnet50_head_top_2000_v7_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v7 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V7
+resnet50_head_top_2000_v7_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v7 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of ResNet50 on top 2000 categories V8
+resnet50_head_top_2000_v8: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v3/model.h5
+	mkdir models/resnet50_head_top_2000_v8 ; \
+	cp models/resnet50_head_top_2000_v3/model.h5 models/resnet50_head_top_2000_v8 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v8 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 2 \
+		--batch_seed 3782
+
+## Predict head dense layer of ResNet50 on top 2000 categories V8
+resnet50_head_top_2000_v8_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v8 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V8
+resnet50_head_top_2000_v8_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v8 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of ResNet50 on top 2000 categories V9
+resnet50_head_top_2000_v9: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v4/model.h5
+	mkdir models/resnet50_head_top_2000_v9 ; \
+	cp models/resnet50_head_top_2000_v4/model.h5 models/resnet50_head_top_2000_v9 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v9 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 3 \
+		--batch_seed 3783
+
+## Predict head dense layer of ResNet50 on top 2000 categories V9
+resnet50_head_top_2000_v9_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v9 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V9
+resnet50_head_top_2000_v9_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v9 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of ResNet50 on top 2000 categories V10
+resnet50_head_top_2000_v10: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v5/model.h5
+	mkdir models/resnet50_head_top_2000_v10 ; \
+	cp models/resnet50_head_top_2000_v5/model.h5 models/resnet50_head_top_2000_v10 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v10 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 4 \
+		--batch_seed 3783
+
+## Predict head dense layer of ResNet50 on top 2000 categories V10
+resnet50_head_top_2000_v10_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v10 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V10
+resnet50_head_top_2000_v10_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v10 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of ResNet50 on top 2000 categories V11
+resnet50_head_top_2000_v11: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v6/model.h5
+	mkdir models/resnet50_head_top_2000_v11 ; \
+	cp models/resnet50_head_top_2000_v6/model.h5 models/resnet50_head_top_2000_v11 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v11 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 5 \
+		--batch_seed 3783
+
+## Predict head dense layer of ResNet50 on top 2000 categories V11
+resnet50_head_top_2000_v11_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v11 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V11
+resnet50_head_top_2000_v11_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v11 \
+		--batch_size 250 \
+		--shuffle 123
+
 ## Train head dense layer of ResNet50 on top 3000 categories V1
 resnet50_head_top_3000_v1: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
@@ -1183,6 +1379,48 @@ ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_3000_v1/model.h5
 		--mode 1 \
 		--batch_seed 56778
 
+## Predict head dense layer of ResNet50 on top 3000 categories V2
+resnet50_head_top_3000_v2_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_v2 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on top 3000 categories V2
+resnet50_head_top_3000_v2_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_v2 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Train head dense layer of ResNet50 on top 3000 categories V3
+resnet50_head_top_3000_v3: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_3000_v2/model.h5
+	mkdir models/resnet50_head_top_3000_v3 ; \
+	cp models/resnet50_head_top_3000_v2/model.h5 models/resnet50_head_top_3000_v3 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_v3 \
+		--batch_size 1000 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 1 \
+		--batch_seed 56972
+
 ## Train head dense layer of ResNet50 on all categories V1
 resnet50_head_full_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
@@ -1218,6 +1456,29 @@ ${DATA_INTERIM}/train_split.csv models/resnet50_head_full_v1/model.h5
 		--shuffle 123 \
 		--mode 1 \
 		--batch_seed 56779
+
+## Predict head dense layer of ResNet50 on all categories V2
+resnet50_head_full_v2_test: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_full_v2 \
+		--batch_size 250
+
+## Predict valid head dense layer of ResNet50 on all categories V2
+resnet50_head_full_v2_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_full_v2 \
+		--batch_size 250 \
+		--shuffle 123
 
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
