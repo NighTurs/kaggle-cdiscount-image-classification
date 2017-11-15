@@ -1513,6 +1513,30 @@ models/LB_0_69673_se_inc3_00026000_model
 		--batch_size 500 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
 
+## Predict Xception model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_xception_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
+
+## Predict ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_resnet101_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/resnet101_00243000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name resnet101 \
+		--model_dir models/resnet101_00243000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
+
 ## Train ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \

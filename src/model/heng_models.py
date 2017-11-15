@@ -10,6 +10,8 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from src.heng_cherkeng.inception_v3 import Inception3
 from src.heng_cherkeng.excited_inception_v3 import SEInception3
+from src.heng_cherkeng.xception import Xception
+from src.heng_cherkeng.resnet101 import ResNet101
 from src.data.category_idx import category_to_index_dict
 
 CDISCOUNT_NUM_CLASSES = 5270
@@ -69,6 +71,10 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
         net = Inception3(in_shape=(3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), num_classes=CDISCOUNT_NUM_CLASSES)
     elif model_name == 'seinception':
         net = SEInception3(in_shape=(3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), num_classes=CDISCOUNT_NUM_CLASSES)
+    elif model_name == 'xception':
+        net = Xception(in_shape=(3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), num_classes=CDISCOUNT_NUM_CLASSES)
+    elif model_name == 'resnet101':
+        net = ResNet101(in_shape=(3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), num_classes=CDISCOUNT_NUM_CLASSES)
     else:
         raise ValueError('Unknown model name ' + model_name)
 
