@@ -87,6 +87,14 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             x = BatchNormalization(axis=-1)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model(inp, x)
+        elif mode == 5:
+            inp = Input((2048,))
+            x = Dense(6144, activation='relu')(inp)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(6144, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model(inp, x)
 
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
