@@ -1757,6 +1757,38 @@ data/processed/ensemble_nn_vgg16_v3_sum_submission.csv: models/ensemble_nn_vgg16
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_nn_vgg16_v3_sum_submission.csv
 
+## Train ensemble of VGG16 and ResNet50 models V1
+ensemble_nn_vgg16_resnet50_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/valid_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_predictions.csv \
+				models/vgg16_head_top_2000_v20/valid_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_predictions.csv \
+				models/vgg16_head_top_3000_v3/valid_predictions.csv \
+				models/vgg16_head_full_v1/valid_predictions.csv \
+				models/vgg16_head_full_v3/valid_predictions.csv \
+				models/resnet50_head_top_2000_v7/valid_predictions.csv \
+				models/resnet50_head_top_2000_v8/valid_predictions.csv \
+				models/resnet50_head_top_2000_v9/valid_predictions.csv \
+				models/resnet50_head_top_2000_v10/valid_predictions.csv \
+				models/resnet50_head_top_2000_v11/valid_predictions.csv \
+				models/resnet50_head_top_3000_v2/valid_predictions.csv \
+				models/resnet50_head_full_v2/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_v1 \
+			--lr 0.1
+
 ## Ensemble with fixed weights V1
 ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
