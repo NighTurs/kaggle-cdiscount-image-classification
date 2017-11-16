@@ -24,6 +24,10 @@ def read_label_to_category_id(file):
         d = eval(file.read())
     return d
 
+def read_train_ids(file):
+    with open(file, 'r') as file:
+        lines = file.readlines()
+    return {int(line) for line in lines}
 
 def pytorch_image_to_tensor_transform(image):
     mean = [0.485, 0.456, 0.406]
@@ -64,7 +68,8 @@ def doit(net, vecs, ids, dfs, label_to_category_id, category_dict, top_k=10):
     dfs.append(chunk_df)
 
 
-def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, batch_size, category_idx):
+def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, batch_size, category_idx, is_pred_valid,
+                  train_ids_file):
     category_dict = category_to_index_dict(category_idx)
 
     if model_name == 'inception':
@@ -82,6 +87,8 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
     net.cuda().eval()
 
     label_to_category_id = read_label_to_category_id(label_to_category_id_file)
+    if is_pred_valid:
+        train_ids = read_train_ids(train_ids_file)
 
     bson_iter = bson.decode_file_iter(open(bson_file, 'rb'))
     batch_size = batch_size
@@ -92,6 +99,9 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
         ids = []
         for d in bson_iter:
             product_id = d['_id']
+            # noinspection PyUnboundLocalVariable
+            if is_pred_valid and product_id in train_ids:
+                continue
             for e, pic in enumerate(d['imgs']):
                 image = cv2.imdecode(np.fromstring(pic['picture'], np.uint8), 1)
                 x = image_to_tensor_transform(image)
@@ -116,11 +126,18 @@ if __name__ == '__main__':
     parser.add_argument('--label_to_category_id_file', required=True, help='Hengs label to category mappings file')
     parser.add_argument('--batch_size', type=int, required=False, default=256, help='Batch size')
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
+    parser.add_argument('--predict_valid', action='store_true', required=False, dest='is_predict_valid')
+    parser.set_defaults(is_predict_valid=False)
+    parser.add_argument('--train_ids_file', required=False, help='Path to Hengs with train ids')
 
     args = parser.parse_args()
 
     category_idx = pd.read_csv(args.category_idx_csv)
 
     preds = model_predict(args.bson, args.model_name, args.model_dir, args.label_to_category_id_file, args.batch_size,
-                          category_idx)
-    preds.to_csv(os.path.join(args.model_dir, 'predictions.csv'), index=False)
+                          category_idx, args.is_predict_valid, args.train_ids_file)
+    if args.is_predict_valid:
+        preds.to_csv(os.path.join(args.model_dir, 'valid_predictions.csv'), index=False)
+    else:
+        preds.to_csv(os.path.join(args.model_dir, 'predictions.csv'), index=False)
+
