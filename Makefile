@@ -8,7 +8,7 @@
 	vgg16_head_full_v3 ensemble_nn_vgg16_v1 ensemble_nn_vgg16_v3 ensemble_fixed_V1 ensemble_fixed_V2 ensemble_fixed_V3 \
 	ensemble_fixed_V4 ensemble_fixed_V5 resnet50_head_top_2000_v1 resnet50_head_top_2000_v2 resnet50_head_top_2000_v3 \
 	resnet50_head_top_2000_v4 resnet50_head_top_2000_v5 resnet50_head_top_2000_v6 resnet50_head_top_2000_v7 \
-	resnet50_head_top_2000_v8 resnet50_head_top_2000_v9 resnet50_head_top_2000_v10 resnet50_head_top_2000_v11 \
+	resnet50_head_top_2000_v8 resnet50_head_top_2000_v9 resnet50_head_top_2000_v10 resnet50_head_top_2000_v11 ensemble_fixed_V8 \
 	vgg16_head_top_2000_v1_test vgg16_head_top_2000_v2_test vgg16_head_top_2000_v3_test vgg16_head_top_2000_v4_test \
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
 	vgg16_head_top_2000_v10_test vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
@@ -27,7 +27,7 @@
 	vgg16_head_top_2000_v18_submission heng_inception3_submission vgg16_head_full_v1_submission ensemble_nn_vgg16_v1_submission \
 	ensemble_nn_vgg16_v3_submission ensemble_fixed_V1_submission ensemble_fixed_V2_submission ensemble_fixed_V3_submission \
 	ensemble_fixed_V4_submission ensemble_nn_vgg16_v3_mul_submission ensemble_nn_vgg16_v3_sum_submission \
-	ensemble_fixed_V5_sum_submission
+	ensemble_fixed_V5_sum_submission ensemble_fixed_V8_sum_submission
 
 
 #################################################################################
@@ -1823,6 +1823,29 @@ data/processed/ensemble_fixed_V7_sum_submission.csv: models/ensemble_fixed_V7/pr
 		--preds_csv models/ensemble_fixed_V7/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V7_sum_submission.csv
+
+## Ensemble with fixed weights V8
+ensemble_fixed_V8: models/LB_0_69565_inc3_00075000_model/predictions.csv \
+	models/LB_0_69673_se_inc3_00026000_model/predictions.csv \
+	models/resnet101_00243000_model/predictions.csv \
+	models/LB_0_69422_xception_00158000_model/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/predictions.csv \
+				models/resnet101_00243000_model/predictions.csv \
+				models/LB_0_69422_xception_00158000_model/predictions.csv \
+			--weights 0.24 0.24 0.27 0.24 \
+			--model_dir models/ensemble_fixed_V8
+
+## Form sum submission for ensemble with fixed weights V8
+ensemble_fixed_V8_sum_submission: data/processed/ensemble_fixed_V8_sum_submission.csv
+
+data/processed/ensemble_fixed_V8_sum_submission.csv: models/ensemble_fixed_V8/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_fixed_V8/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V8_sum_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
