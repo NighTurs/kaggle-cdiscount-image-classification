@@ -30,10 +30,8 @@ if __name__ == '__main__':
                                         'category_idx': np.int16,
                                         'prob': np.float32})
         preds['prob'] = preds['prob'] * weights[i]
+        preds.sort_values(['product_id', 'img_idx'], inplace=True)
         all_preds.append(preds)
-
-    all_preds = pd.concat(all_preds)
-    all_preds.sort_values(['product_id', 'img_idx', 'category_idx'], inplace=True)
 
     prev_img = (0, 0)
     prev_cat = 0
@@ -44,9 +42,22 @@ if __name__ == '__main__':
     if not os.path.isdir(model_dir):
         os.mkdir(model_dir)
 
-    with tqdm(total=all_preds.shape[0]) as pbar, open(os.path.join(model_dir, PREDICTIONS_FILE), 'w') as out:
+    # Can't concatenate and sort all preds simultaneously because of memory problems
+    def preds_gen(all_preds):
+        iters = [pred.itertuples() for pred in all_preds]
+        while True:
+            rows = []
+            for iter in iters:
+                for i in range(TOP_PREDS):
+                    rows.append(next(iter))
+            rows.sort(key=lambda x: x.category_idx)
+            for row in rows:
+                yield row
+
+    with tqdm(total=sum([preds.shape[0] for preds in all_preds])) as pbar, \
+            open(os.path.join(model_dir, PREDICTIONS_FILE), 'w') as out:
         out.write('product_id,img_idx,category_idx,prob\n')
-        for row in itertools.chain(all_preds.itertuples(),
+        for row in itertools.chain(preds_gen(all_preds),
                                    [namedtuple('Pandas', ['product_id', 'img_idx', 'category_idx', 'prob'])(0, 0, 0,
                                                                                                             0)]):
             product_id = row.product_id
