@@ -12,10 +12,12 @@ from keras.layers import merge
 from keras.models import Model
 from keras.initializers import Ones
 from keras.optimizers import Adam
+from keras.models import load_model
 
 N_CATEGORIES = 5270
 CATEGORIES_SPLIT = 2000
 MODEL_FILE = 'model.h5'
+
 
 class SpecialIterator(Iterator):
     def __init__(self, images, categories, n_models, batch_size=32, shuffle=True, seed=None):
@@ -42,10 +44,10 @@ class SpecialIterator(Iterator):
                 for row in preds.itertuples():
                     p[prod_i, row.category_idx, model_i] = row.prob
 
-        return [m, p[:,:CATEGORIES_SPLIT,:], p[:,CATEGORIES_SPLIT:,:]], cats['category_idx'].as_matrix()
+        return [m, p[:, :CATEGORIES_SPLIT, :], p[:, CATEGORIES_SPLIT:, :]], cats['category_idx'].as_matrix()
 
 
-def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr):
+def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr, seed, batch_size):
     prod_info = pd.read_csv(prod_info_csv)
     category_idx = pd.read_csv(category_idx_csv)
 
@@ -66,30 +68,35 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
     categories = categories[['product_id', 'category_idx']]
     categories = categories.set_index('product_id')
 
-    it = SpecialIterator(all_preds, categories, n_models, batch_size=2000, seed=456, shuffle=True)
+    it = SpecialIterator(all_preds, categories, n_models, batch_size=batch_size, seed=seed, shuffle=True)
 
-    model_inp = Input(shape=(n_models,), dtype='int32')
+    model_file = os.path.join(model_dir, MODEL_FILE)
+    if os.path.exists(model_file):
+        model = load_model(model_file)
+    else:
+        model_inp = Input(shape=(n_models,), dtype='int32')
 
-    preds_cat1_inp = Input((CATEGORIES_SPLIT, n_models))
-    preds_cat2_inp = Input((N_CATEGORIES - CATEGORIES_SPLIT, n_models))
+        preds_cat1_inp = Input((CATEGORIES_SPLIT, n_models))
+        preds_cat2_inp = Input((N_CATEGORIES - CATEGORIES_SPLIT, n_models))
 
-    mul_cat1 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
-    mul_cat1 = Flatten()(mul_cat1)
+        mul_cat1 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
+        mul_cat1 = Flatten()(mul_cat1)
 
-    mul_cat2 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
-    mul_cat2 = Flatten()(mul_cat2)
+        mul_cat2 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
+        mul_cat2 = Flatten()(mul_cat2)
 
-    def op(x):
-        z_left = x[0].dimshuffle(1, 0, 2) * x[1]
-        z_right = x[2].dimshuffle(1, 0, 2) * x[3]
-        z = K.concatenate([z_left, z_right], axis=0)
-        v = K.sum(z, axis=-1)
-        p = K.sum(v, axis=-2)
-        return (v / p).dimshuffle(1, 0)
+        def op(x):
+            z_left = x[0].dimshuffle(1, 0, 2) * x[1]
+            z_right = x[2].dimshuffle(1, 0, 2) * x[3]
+            z = K.concatenate([z_left, z_right], axis=0)
+            v = K.sum(z, axis=-1)
+            p = K.sum(v, axis=-2)
+            return (v / p).dimshuffle(1, 0)
 
-    x = merge([preds_cat1_inp, mul_cat1, preds_cat2_inp, mul_cat2], mode=op, output_shape=(N_CATEGORIES,))
+        x = merge([preds_cat1_inp, mul_cat1, preds_cat2_inp, mul_cat2], mode=op, output_shape=(N_CATEGORIES,))
 
-    model = Model([model_inp, preds_cat1_inp, preds_cat2_inp], x)
+        model = Model([model_inp, preds_cat1_inp, preds_cat2_inp], x)
+    np.random.seed(seed)
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
 
@@ -104,6 +111,7 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
         os.mkdir(model_dir)
     model.save(os.path.join(model_dir, MODEL_FILE))
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--preds_csvs', nargs='+', required=True, help='Files with predictions of valid split')
@@ -111,6 +119,9 @@ if __name__ == '__main__':
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
     parser.add_argument('--model_dir', required=True, help='Model directory')
     parser.add_argument('--lr', type=float, default=0.01, required=False, help='Learning rate')
+    parser.add_argument('--seed', type=int, default=456, required=False, help='Learning seed')
+    parser.add_argument('--batch_size', type=int, default=2000, required=False, help='Batch size')
 
     args = parser.parse_args()
-    train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr)
+    train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr, args.seed,
+                      args.batch_size)

@@ -1600,7 +1600,9 @@ ensemble_nn_heng_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/cate
 				models/LB_0_69422_xception_00158000_model/valid_predictions.csv \
 			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-			--model_dir models/ensemble_nn_heng_v1
+			--model_dir models/ensemble_nn_heng_v1 \
+			--seed 414 \
+			--lr 0.1
 
 ## Train ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
