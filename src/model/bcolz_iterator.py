@@ -7,8 +7,9 @@ CHUNK_SIZE = 100000
 
 
 class BcolzIterator():
-    def __init__(self, bcolz_root, x_idxs, y=None, num_classes=None, batch_size=32, shuffle=True, seed=None):
+    def __init__(self, bcolz_root, x_idxs, side_input=None, y=None, num_classes=None, batch_size=32, shuffle=True, seed=None):
         self.x = bcolz.open(bcolz_root)
+        self.side_x = side_input
         self.x_idxs = x_idxs
         self.y = y
         self.num_classes = num_classes
@@ -27,6 +28,8 @@ class BcolzIterator():
     def preload(self, idx):
         idxs = self.x_idxs[(CHUNK_SIZE * idx):(CHUNK_SIZE * idx + CHUNK_SIZE)]
         self.preload_x = self.x[idxs]
+        if self.side_x is not None:
+            self.preload_side_x = self.side_x[idxs]
 
     def get_chunk(self):
         self.chunk_idx += 1
@@ -39,6 +42,8 @@ class BcolzIterator():
 
         self.thread.join()
         self.chunk_x = self.preload_x
+        if self.side_x is not None:
+            self.chunk_side_x = self.preload_side_x
         self.thread = threading.Thread(target=self.preload, args=(self.next_idx,))
         self.thread.start()
 
@@ -51,10 +56,14 @@ class BcolzIterator():
         if self.chunk_x.shape[0] <= self.chunk_seen:
             self.get_chunk()
         index_array = next(self.it.index_generator)
-        if self.y is not None:
-            out = self.chunk_x[index_array[0]], self.chunk_y[index_array[0]]
+        if self.side_x is not None:
+            out_x = [self.chunk_x[index_array[0]], self.chunk_side_x[index_array[0]]]
         else:
-            out = self.chunk_x[index_array[0]]
+            out_x = self.chunk_x[index_array[0]]
+        if self.y is not None:
+            out = out_x, self.chunk_y[index_array[0]]
+        else:
+            out = out_x
         self.chunk_seen += len(index_array[0])
         return out
 

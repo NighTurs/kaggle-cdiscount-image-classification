@@ -7,9 +7,11 @@ from keras.models import load_model
 from keras.layers import Dense
 from keras.layers import Input
 from keras.layers import BatchNormalization
+from keras.layers import concatenate
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from keras.utils import to_categorical
 from ..data.category_idx import map_categories
 from .bcolz_iterator import BcolzIterator
 from .resnet50_vecs import create_images_df
@@ -21,29 +23,41 @@ PREDICTIONS_FILE = 'predictions.csv'
 VALID_PREDICTIONS_FILE = 'valid_predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 50000
 
+def form_side_input(df):
+    return np.hstack([to_categorical(df.num_imgs - 1, num_classes=4),
+                               to_categorical(df.img_idx, num_classes=4)])
 
 def train_data(bcolz_root, bcolz_prod_info, sample_prod_info, train_split, category_idx, only_first_image, batch_size,
-               shuffle=None, batch_seed=123):
+               shuffle=None, batch_seed=123, use_img_idx=False):
     images_df = create_images_df(bcolz_prod_info, only_first_image)
     bcolz_prod_info['category_idx'] = map_categories(category_idx, bcolz_prod_info['category_id'])
     bcolz_prod_info = bcolz_prod_info.merge(train_split, on='product_id', how='left')
-    cat_idxs = images_df.merge(bcolz_prod_info, on='product_id', how='left')[['product_id', 'category_idx', 'train']]
+    cat_idxs = images_df.merge(bcolz_prod_info, on='product_id', how='left')[
+        ['product_id', 'category_idx', 'img_idx', 'num_imgs', 'train']]
+    del images_df
     if shuffle:
         np.random.seed(shuffle)
         perm = np.random.permutation(cat_idxs.shape[0])
         cat_idxs = cat_idxs.reindex(perm)
         cat_idxs.reset_index(drop=True, inplace=True)
-    cat_idxs = cat_idxs[cat_idxs.product_id.isin(sample_prod_info.product_id)]
-    idxs = cat_idxs.index.values
-    train_idxs = idxs[cat_idxs['train']]
-    valid_idxs = idxs[~cat_idxs['train']]
-    num_classes = np.unique(cat_idxs['category_idx']).size
+    cat_idxs_smpl = cat_idxs[cat_idxs.product_id.isin(sample_prod_info.product_id)]
+    idxs = cat_idxs_smpl.index.values
+    train_idxs = idxs[cat_idxs_smpl['train']]
+    valid_idxs = idxs[~cat_idxs_smpl['train']]
+    num_classes = np.unique(cat_idxs_smpl['category_idx']).size
+
+    if use_img_idx:
+        side_input = form_side_input(cat_idxs)
+    else:
+        side_input = None
 
     train_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=train_idxs,
-                             y=cat_idxs['category_idx'].loc[train_idxs].as_matrix(),
+                             side_input=side_input,
+                             y=cat_idxs_smpl['category_idx'].loc[train_idxs].as_matrix(),
                              num_classes=num_classes, seed=batch_seed, batch_size=batch_size, shuffle=True)
     valid_it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=valid_idxs,
-                             y=cat_idxs['category_idx'].loc[valid_idxs].as_matrix(),
+                             side_input=side_input,
+                             y=cat_idxs_smpl['category_idx'].loc[valid_idxs].as_matrix(),
                              num_classes=num_classes, batch_size=batch_size, shuffle=False)
     return train_it, valid_it, num_classes
 
@@ -95,6 +109,16 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             x = BatchNormalization(axis=-1)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model(inp, x)
+        elif mode == 6:
+            inp_vec = Input((2048,))
+            img_idx_inp = Input((8,))
+            x = concatenate([inp_vec, img_idx_inp])
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp_vec, img_idx_inp], x)
 
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
@@ -111,35 +135,41 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
 
 
 def predict(bcolz_root, prod_info, sample_prod_info, models_dir, only_first_image, batch_size=200, shuffle=None,
-            top_k=10):
+            top_k=10, use_img_idx=False):
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
     else:
         raise ValueError("Model doesn't exist")
     images_df = create_images_df(prod_info, only_first_image)
+    images_df = images_df.merge(prod_info, on='product_id', how='left')[
+        ['product_id',  'img_idx', 'num_imgs']]
     if shuffle:
         np.random.seed(shuffle)
         perm = np.random.permutation(images_df.shape[0])
         images_df = images_df.reindex(perm)
         images_df.reset_index(drop=True, inplace=True)
     if sample_prod_info is not None:
-        images_df = images_df[images_df.product_id.isin(sample_prod_info.product_id)]
-    idxs = images_df.index.values
+        images_df_smpl = images_df[images_df.product_id.isin(sample_prod_info.product_id)]
+    else:
+        images_df_smpl = images_df
+    idxs = images_df_smpl.index.values
     dfs = []
     steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
-    while offset < images_df.shape[0]:
-        it = BcolzIterator(bcolz_root=bcolz_root, x_idxs=idxs[offset:],
+    while offset < images_df_smpl.shape[0]:
+        it = BcolzIterator(bcolz_root=bcolz_root,
+                           x_idxs=idxs[offset:],
+                           side_input=form_side_input(images_df[offset:]) if use_img_idx else None,
                            batch_size=batch_size,
                            shuffle=False)
-        preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size),
+        preds = model.predict_generator(it, min(steps, (images_df_smpl.shape[0] - offset) / batch_size),
                                         verbose=1, max_queue_size=5)
         top_k_preds = np.argpartition(preds, -top_k)[:, -top_k:]
         chunk = []
         for i in range(top_k_preds.shape[0]):
-            product_id = images_df.iloc[offset + i]['product_id']
-            img_idx = images_df.iloc[offset + i]['img_idx']
+            product_id = images_df_smpl.iloc[offset + i]['product_id']
+            img_idx = images_df_smpl.iloc[offset + i]['img_idx']
             for pred_idx in range(top_k):
                 chunk.append((product_id, img_idx, top_k_preds[i, pred_idx], preds[i, top_k_preds[i, pred_idx]]))
         chunk_df = pd.DataFrame(chunk, columns=['product_id', 'img_idx', 'category_idx', 'prob'])
@@ -173,6 +203,8 @@ if __name__ == '__main__':
     parser.set_defaults(only_first_image=False)
     parser.add_argument('--mode', type=int, default=0, required=False, help='Mode')
     parser.add_argument('--batch_seed', type=int, default=123, required=False, help='Batch seed')
+    parser.add_argument('--use_img_idx', action='store_true', dest='use_img_idx')
+    parser.set_defaults(use_img_idx=False)
 
     args = parser.parse_args()
     if not os.path.isdir(args.models_dir):
@@ -189,15 +221,17 @@ if __name__ == '__main__':
                                                      category_idx,
                                                      args.only_first_image,
                                                      args.batch_size, args.shuffle,
-                                                     args.batch_seed)
+                                                     args.batch_seed,
+                                                     args.use_img_idx)
         fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs, args.mode,
                   args.batch_seed)
     elif args.is_predict:
-        out_df = predict(args.bcolz_root, bcolz_prod_info, sample_prod_info, args.models_dir, args.only_first_image)
+        out_df = predict(args.bcolz_root, bcolz_prod_info, sample_prod_info, args.models_dir, args.only_first_image,
+                         args.use_img_idx)
         out_df.to_csv(os.path.join(args.models_dir, PREDICTIONS_FILE), index=False)
     elif args.is_predict_valid:
         only_valids = bcolz_prod_info[
             bcolz_prod_info.product_id.isin(train_split[train_split.train == False].product_id)]
         out_df = predict(args.bcolz_root, bcolz_prod_info, only_valids, args.models_dir, args.only_first_image,
-                         shuffle=args.shuffle)
+                         shuffle=args.shuffle, use_img_idx=args.use_img_idx)
         out_df.to_csv(os.path.join(args.models_dir, VALID_PREDICTIONS_FILE), index=False)
