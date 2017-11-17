@@ -17,7 +17,7 @@
 	vgg16_head_full_v1_test vgg16_head_full_v3_test resnet50_head_top_2000_v7_test resnet50_head_top_2000_v8_test \
 	resnet50_head_top_2000_v9_test resnet50_head_top_2000_v10_test resnet50_head_top_2000_v11_test resnet50_head_top_3000_v2_test \
 	resnet50_head_full_v2_test heng_inception3_test heng_seinception3_test ensemble_nn_vgg16_v1_test \
-	ensemble_nn_vgg16_v3_test heng_xception_test heng_resnet101_test ensemble_nn_heng_v1_test \
+	ensemble_nn_vgg16_v3_test heng_xception_test heng_resnet101_test ensemble_nn_heng_v1_test ensemble_nn_vgg16_resnet50_v1_test \
 	vgg16_head_top_2000_v1_valid vgg16_head_top_2000_v2_valid vgg16_head_top_2000_v3_valid vgg16_head_top_2000_v4_valid \
 	vgg16_head_top_2000_v6_valid vgg16_head_top_2000_v7_valid vgg16_head_top_2000_v8_valid vgg16_head_top_2000_v9_valid \
 	vgg16_head_top_2000_v10_valid vgg16_head_top_2000_v12_valid vgg16_head_top_2000_v13_valid vgg16_head_top_2000_v14_valid \
@@ -1800,6 +1800,35 @@ ensemble_nn_vgg16_resnet50_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INT
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 			--model_dir models/ensemble_nn_vgg16_resnet50_v1 \
 			--lr 0.1
+
+## Predict ensemble of VGG16 and ResNet50 models V1
+ensemble_nn_vgg16_resnet50_v1_test: models/ensemble_nn_vgg16_resnet50_v1/model.h5
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/predictions.csv \
+				models/vgg16_head_top_2000_v2/predictions.csv \
+				models/vgg16_head_top_2000_v3/predictions.csv \
+				models/vgg16_head_top_2000_v4/predictions.csv \
+				models/vgg16_head_top_2000_v8/predictions.csv \
+				models/vgg16_head_top_2000_v9/predictions.csv \
+				models/vgg16_head_top_2000_v10/predictions.csv \
+				models/vgg16_head_top_2000_v12/predictions.csv \
+				models/vgg16_head_top_2000_v13/predictions.csv \
+				models/vgg16_head_top_2000_v14/predictions.csv \
+				models/vgg16_head_top_2000_v18/predictions.csv \
+				models/vgg16_head_top_2000_v20/predictions.csv \
+				models/vgg16_head_top_3000_v1/predictions.csv \
+				models/vgg16_head_top_3000_v3/predictions.csv \
+				models/vgg16_head_full_v1/predictions.csv \
+				models/vgg16_head_full_v3/predictions.csv \
+				models/resnet50_head_top_2000_v7/predictions.csv \
+				models/resnet50_head_top_2000_v8/predictions.csv \
+				models/resnet50_head_top_2000_v9/predictions.csv \
+				models/resnet50_head_top_2000_v10/predictions.csv \
+				models/resnet50_head_top_2000_v11/predictions.csv \
+				models/resnet50_head_top_3000_v2/predictions.csv \
+				models/resnet50_head_full_v2/predictions.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_v1
 
 ## Ensemble with fixed weights V1
 ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
