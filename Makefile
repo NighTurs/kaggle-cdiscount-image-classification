@@ -1987,7 +1987,7 @@ data/processed/ensemble_fixed_V8_sum_submission.csv: models/ensemble_fixed_V8/pr
 
 ## Ensemble with fixed weights V9
 ensemble_fixed_V9: models/ensemble_nn_heng_v1/predictions.csv \
-	models/ensemble_nn_vgg16_resnet50_v1/predictions.csv \
+	models/ensemble_nn_vgg16_resnet50_v1/predictions.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
 			--preds_csvs \
 				models/ensemble_nn_heng_v1/predictions.csv \
