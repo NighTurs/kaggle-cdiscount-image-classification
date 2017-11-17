@@ -119,6 +119,26 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             x = BatchNormalization(axis=-1)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model([inp_vec, img_idx_inp], x)
+        elif mode == 7:
+            inp_vec = Input((2048,))
+            img_idx_inp = Input((8,))
+            x = concatenate([inp_vec, img_idx_inp])
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(2048, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp_vec, img_idx_inp], x)
+        elif mode == 8:
+            inp_vec = Input((2048,))
+            img_idx_inp = Input((8,))
+            x = concatenate([inp_vec, img_idx_inp])
+            x = Dense(6144, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(6144, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp_vec, img_idx_inp], x)
 
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
