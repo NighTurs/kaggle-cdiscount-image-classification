@@ -23,7 +23,8 @@ def create_images_df(prod_info, train_split, seed):
                                               zip(products_test, len(products_train) +
                                                   np.random.permutation(len(products_test))))}
     images_df['pos'] = images_df.product_id.apply(lambda x: p_map[x])
-    return images_df.sort_values(['pos', 'img_idx'], inplace=True)[['product_id', 'img_idx']]
+    images_df.sort_values(['pos', 'img_idx'], inplace=True)
+    return images_df[['product_id', 'img_idx']]
 
 
 def reorder_bcolz(permutation, bcolz_input, bcolz_output):
