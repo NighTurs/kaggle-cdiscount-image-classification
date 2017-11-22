@@ -9,6 +9,8 @@ from keras.layers import Dense
 from keras.layers import Input
 from keras.layers import BatchNormalization
 from keras.layers import TimeDistributed
+from keras.layers import SimpleRNN
+from keras.layers import GRU
 from keras.layers import Lambda
 from keras.layers import concatenate
 from keras.optimizers import Adam
@@ -94,6 +96,28 @@ def fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, models_dir, lr
             x = TimeDistributed(Dense(4096, activation='relu'))(x)
             x = BatchNormalization(axis=-1)(x)
             x = Lambda(lambda x: K.sum(x, axis=-2), output_shape=(4096,))(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp1, inp2], x)
+        elif mode == 1:
+            inp1 = Input((None, 2048))
+            inp2 = Input((None, 8))
+            x = concatenate([inp1, inp2])
+            x = TimeDistributed(Dense(4096, activation='relu'))(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = SimpleRNN(4096, activation='relu', recurrent_initializer='identity')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp1, inp2], x)
+        elif mode == 2:
+            inp1 = Input((None, 2048))
+            inp2 = Input((None, 8))
+            x = concatenate([inp1, inp2])
+            x = TimeDistributed(Dense(4096, activation='relu'))(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = TimeDistributed(Dense(4096, activation='relu'))(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = GRU(100, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model([inp1, inp2], x)
 
