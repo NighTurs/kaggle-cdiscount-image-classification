@@ -13,7 +13,7 @@
 	resnet50_head_top_2000_img_idx_v1 resnet50_head_top_2000_img_idx_v2 resnet50_head_top_2000_img_idx_v3 \
 	resnet50_head_top_2000_img_idx_v4 resnet50_head_top_2000_img_idx_v5 resnet50_head_top_2000_img_idx_v6 \
 	resnet50_head_top_3000_img_idx_v1 resnet50_head_top_3000_img_idx_v2 resnet50_head_full_img_idx_v1 \
-	resnet50_head_full_img_idx_v2 \
+	resnet50_head_full_img_idx_v2 resnet50_head_top_2000_avg_v1 resnet50_head_top_2000_avg_v2 \
 	vgg16_head_top_2000_v1_test vgg16_head_top_2000_v2_test vgg16_head_top_2000_v3_test vgg16_head_top_2000_v4_test \
 	vgg16_head_top_2000_v6_test vgg16_head_top_2000_v7_test vgg16_head_top_2000_v8_test vgg16_head_top_2000_v9_test \
 	vgg16_head_top_2000_v10_test vgg16_head_top_2000_v12_test vgg16_head_top_2000_v13_test vgg16_head_top_2000_v14_test \
@@ -1683,6 +1683,44 @@ ${DATA_INTERIM}/train_split.csv models/resnet50_head_full_img_idx_v1/model.h5
 		--mode 6 \
 		--batch_seed 32498 \
 		--use_img_idx
+
+## Train head dense layer of average ResNet50 on top 2000 categories V1
+resnet50_head_top_2000_avg_v1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v1 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 0 \
+		--batch_seed 5673 \
+		--memmap_len 12371293
+
+## Train head dense layer of average ResNet50 on top 2000 categories V2
+resnet50_head_top_2000_avg_v2: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_avg_v1/model.h5
+	mkdir models/resnet50_head_top_2000_avg_v2 ; \
+	cp models/resnet50_head_top_2000_avg_v1/model.h5 models/resnet50_head_top_2000_avg_v2 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v2 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 1 \
+		--shuffle 123 \
+		--mode 0 \
+		--batch_seed 57108 \
+		--memmap_len 12371293
 
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
