@@ -27,7 +27,7 @@ MAX_PREDICTIONS_AT_TIME = 50000
 
 
 def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train_split, category_idx, batch_size,
-               shuffle=None, batch_seed=123):
+               shuffle=None, batch_seed=123, max_images=2):
     images_df = create_images_df(bcolz_prod_info, False)
     bcolz_prod_info['category_idx'] = map_categories(category_idx, bcolz_prod_info['category_id'])
     bcolz_prod_info = bcolz_prod_info.merge(train_split, on='product_id', how='left')
@@ -49,26 +49,45 @@ def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train
                               num_classes=num_classes,
                               seed=batch_seed,
                               batch_size=batch_size,
+                              only_single=False,
+                              include_singles=True,
+                              max_images=max_images,
+                              pool_wrokers=4,
                               shuffle=True)
-    valid_it = MemmapIterator(memmap_path=memmap_path,
-                              memmap_shape=(memmap_len, 2048),
-                              images_df=valid_df,
-                              num_classes=num_classes,
-                              seed=batch_seed,
-                              batch_size=batch_size,
-                              shuffle=False,
-                              pool_wrokers=1)
-    return train_it, valid_it, num_classes
+    valid_mul_it = MemmapIterator(memmap_path=memmap_path,
+                                  memmap_shape=(memmap_len, 2048),
+                                  images_df=valid_df,
+                                  num_classes=num_classes,
+                                  seed=batch_seed,
+                                  batch_size=batch_size,
+                                  shuffle=False,
+                                  only_single=False,
+                                  include_singles=False,
+                                  max_images=4,
+                                  pool_wrokers=1)
+    valid_sngl_it = MemmapIterator(memmap_path=memmap_path,
+                                   memmap_shape=(memmap_len, 2048),
+                                   images_df=valid_df,
+                                   num_classes=num_classes,
+                                   seed=batch_seed,
+                                   batch_size=batch_size,
+                                   shuffle=False,
+                                   only_single=True,
+                                   include_singles=True,
+                                   max_images=1,
+                                   pool_wrokers=1)
+    return train_it, valid_mul_it, valid_sngl_it, num_classes
 
 
-def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=64, epochs=1, mode=0, seed=125):
+def fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, models_dir, lr=0.001, batch_size=64, epochs=1, mode=0,
+              seed=125):
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
     else:
         if mode == 0:
-            inp1 = Input((2, 2048))
-            inp2 = Input((2, 8))
+            inp1 = Input((None, 2048))
+            inp2 = Input((None, 8))
             x = concatenate([inp1, inp2])
             x = TimeDistributed(Dense(4096, activation='relu'))(x)
             x = BatchNormalization(axis=-1)(x)
@@ -86,12 +105,17 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
     csv_logger = CSVLogger(os.path.join(models_dir, LOG_FILE), append=True)
     model.fit_generator(train_it,
                         steps_per_epoch=train_it.samples / batch_size,
-                        validation_data=valid_it,
-                        validation_steps=valid_it.samples / batch_size,
+                        validation_data=valid_sngl_it,
+                        validation_steps=valid_sngl_it.samples / batch_size,
                         epochs=epochs,
                         callbacks=[checkpointer, csv_logger],
                         max_queue_size=2,
                         use_multiprocessing=False)
+
+    with open(os.path.join(models_dir, LOG_FILE), "a") as file:
+        file.write('Multi {}\n'.format(model.evaluate_generator(valid_mul_it, steps=valid_mul_it.samples / batch_size)))
+        file.write(
+            'Single {}\n'.format(model.evaluate_generator(valid_sngl_it, steps=valid_sngl_it.samples / batch_size)))
 
 
 if __name__ == '__main__':
@@ -120,6 +144,7 @@ if __name__ == '__main__':
     parser.set_defaults(use_img_idx=False)
     parser.add_argument('--memmap_len', type=int, required=True, help='Number of rows in memmap')
     parser.set_defaults(two_outs=False)
+    parser.add_argument('--max_images', type=int, default=2, required=False, help='Max images in train record')
 
     args = parser.parse_args()
     if not os.path.isdir(args.models_dir):
@@ -131,16 +156,20 @@ if __name__ == '__main__':
     category_idx = pd.read_csv(args.category_idx_csv)
 
     if args.is_fit:
-        train_it, valid_it, num_classes = train_data(args.bcolz_root,
-                                                     args.memmap_len,
-                                                     bcolz_prod_info,
-                                                     sample_prod_info,
-                                                     train_split,
-                                                     category_idx,
-                                                     args.batch_size,
-                                                     args.shuffle,
-                                                     args.batch_seed)
-        fit_model(train_it, valid_it, num_classes, args.models_dir, args.lr, args.batch_size, args.epochs, args.mode,
+        train_it, valid_mul_it, valid_sngl_it, num_classes = train_data(args.bcolz_root,
+                                                                        args.memmap_len,
+                                                                        bcolz_prod_info,
+                                                                        sample_prod_info,
+                                                                        train_split,
+                                                                        category_idx,
+                                                                        args.batch_size,
+                                                                        args.shuffle,
+                                                                        args.batch_seed,
+                                                                        args.max_images)
+        fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, args.models_dir, args.lr, args.batch_size,
+                  args.epochs,
+                  args.mode,
                   args.batch_seed)
         train_it.terminate()
-        valid_it.terminate()
+        valid_mul_it.terminate()
+        valid_sngl_it.terminate()

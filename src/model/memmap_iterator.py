@@ -5,12 +5,9 @@ from keras.preprocessing.image import Iterator
 import multiprocessing as mp
 from threading import Thread
 
-N_IMAGES = 2
-
-
 class MemmapIterator():
     def __init__(self, memmap_path, memmap_shape, images_df, num_classes=None, batch_size=32, shuffle=True, seed=None,
-                 pool_wrokers=4):
+                 pool_wrokers=4, only_single=False, include_singles=True, max_images=2):
         if seed:
             np.random.seed(seed)
         self.x = np.memmap(memmap_path, dtype=np.float32, mode='r', shape=memmap_shape)
@@ -23,6 +20,7 @@ class MemmapIterator():
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self.max_images = max_images
 
         self.smpls = []
         cur_index = []
@@ -30,8 +28,9 @@ class MemmapIterator():
         for i, row in enumerate(
                 itertools.chain(self.images_df.itertuples(), [namedtuple('Pandas', ['Index', 'product_id'])(0, 0)])):
             if prev_product_id != -1 and row.product_id != prev_product_id:
-                self.smpls.extend([[idx] for idx in cur_index])
-                if len(cur_index) > 1:
+                if include_singles or len(cur_index) == 1:
+                    self.smpls.extend([[idx] for idx in cur_index])
+                if len(cur_index) > 1 and not only_single:
                     self.smpls.append(cur_index)
                 cur_index = []
             prev_product_id = row.product_id
@@ -55,8 +54,8 @@ class MemmapIterator():
                 return
             with self.it.lock:
                 index_array = next(self.it.index_generator)[0]
-            m1 = np.zeros((len(index_array), N_IMAGES, *self.x.shape[1:]), dtype=np.float32)
-            m2 = np.zeros((len(index_array), N_IMAGES, 8), dtype=np.float32)
+            m1 = np.zeros((len(index_array), self.max_images, *self.x.shape[1:]), dtype=np.float32)
+            m2 = np.zeros((len(index_array), self.max_images, 8), dtype=np.float32)
 
             if self.has_y:
                 p = np.zeros(len(index_array), dtype=np.float32)
@@ -65,12 +64,9 @@ class MemmapIterator():
             for smpl_idx in index_array:
                 smpl = self.smpls[smpl_idx]
 
-                draft = self.rnd.permutation(len(smpl))[:2]
-                cur_idx = 0
-                if len(draft) == 1:
-                    cur_idx += 1
+                draft = self.rnd.permutation(len(smpl))[:self.max_images]
 
-                for i in draft:
+                for cur_idx, i in zip(range(self.max_images - len(draft), self.max_images), draft):
                     m1[bi, cur_idx] = self.x[self.images_df_index[smpl[i]]]
                     m2[bi, cur_idx, self.images_df_num_imgs[smpl[i]] - 1] = 1
                     m2[bi, cur_idx, 4 + self.images_df_img_idx[smpl[i]]] = 1
@@ -90,13 +86,20 @@ class MemmapIterator():
 
     def terminate(self):
         self.stop_flag = True
-        try:
-            while True:
-                self.queue.get(block=False)
-        except:
-            pass
-        for thread in self.threads:
-            thread.join(timeout=5)
+        while True:
+            live_threads = 0
+            for thread in self.threads:
+                live_threads += 1 if thread.is_alive() else 0
+            if live_threads == 0:
+                return
+            print('Threads running ', live_threads)
+            try:
+                while True:
+                    self.queue.get(block=False)
+            except:
+                pass
+            for thread in self.threads:
+                thread.join(timeout=5)
 
     def __iter__(self):
         return self
