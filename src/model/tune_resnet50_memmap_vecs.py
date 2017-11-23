@@ -20,8 +20,8 @@ from src.model.memmap_iterator import MemmapIterator
 LOAD_MODEL = 'model.h5'
 SNAPSHOT_MODEL = 'model.h5'
 LOG_FILE = 'training.log'
-PREDICTIONS_FILE = 'predictions.csv'
-VALID_PREDICTIONS_FILE = 'valid_predictions.csv'
+PREDICTIONS_FILE = 'single_predictions.csv'
+VALID_PREDICTIONS_FILE = 'valid_single_predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 50000
 
 
