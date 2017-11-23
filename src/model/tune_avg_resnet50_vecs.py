@@ -17,7 +17,7 @@ from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 from src.data.category_idx import map_categories
-from src.model.memmap_iterator import MemmapIterator
+from src.model.multi_memmap_iterator import MultiMemmapIterator
 from src.model.resnet50_vecs import create_images_df
 
 LOAD_MODEL = 'model.h5'
@@ -45,39 +45,39 @@ def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train
     valid_df = images_df[~images_df['train']]
     num_classes = np.unique(images_df['category_idx']).size
 
-    train_it = MemmapIterator(memmap_path=memmap_path,
-                              memmap_shape=(memmap_len, 2048),
-                              images_df=train_df,
-                              num_classes=num_classes,
-                              seed=batch_seed,
-                              batch_size=batch_size,
-                              only_single=only_single,
-                              include_singles=True,
-                              max_images=max_images,
-                              pool_wrokers=4,
-                              shuffle=True)
-    valid_mul_it = MemmapIterator(memmap_path=memmap_path,
-                                  memmap_shape=(memmap_len, 2048),
-                                  images_df=valid_df,
-                                  num_classes=num_classes,
-                                  seed=batch_seed,
-                                  batch_size=batch_size,
-                                  shuffle=False,
-                                  only_single=False,
-                                  include_singles=False,
-                                  max_images=4,
-                                  pool_wrokers=1)
-    valid_sngl_it = MemmapIterator(memmap_path=memmap_path,
+    train_it = MultiMemmapIterator(memmap_path=memmap_path,
                                    memmap_shape=(memmap_len, 2048),
-                                   images_df=valid_df,
+                                   images_df=train_df,
                                    num_classes=num_classes,
                                    seed=batch_seed,
                                    batch_size=batch_size,
-                                   shuffle=False,
-                                   only_single=True,
+                                   only_single=only_single,
                                    include_singles=True,
-                                   max_images=1,
-                                   pool_wrokers=1)
+                                   max_images=max_images,
+                                   pool_wrokers=4,
+                                   shuffle=True)
+    valid_mul_it = MultiMemmapIterator(memmap_path=memmap_path,
+                                       memmap_shape=(memmap_len, 2048),
+                                       images_df=valid_df,
+                                       num_classes=num_classes,
+                                       seed=batch_seed,
+                                       batch_size=batch_size,
+                                       shuffle=False,
+                                       only_single=False,
+                                       include_singles=False,
+                                       max_images=4,
+                                       pool_wrokers=1)
+    valid_sngl_it = MultiMemmapIterator(memmap_path=memmap_path,
+                                        memmap_shape=(memmap_len, 2048),
+                                        images_df=valid_df,
+                                        num_classes=num_classes,
+                                        seed=batch_seed,
+                                        batch_size=batch_size,
+                                        shuffle=False,
+                                        only_single=True,
+                                        include_singles=True,
+                                        max_images=1,
+                                        pool_wrokers=1)
     return train_it, valid_mul_it, valid_sngl_it, num_classes
 
 

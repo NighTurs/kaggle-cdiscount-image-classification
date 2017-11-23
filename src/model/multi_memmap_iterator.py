@@ -5,7 +5,7 @@ from keras.preprocessing.image import Iterator
 import multiprocessing as mp
 from threading import Thread
 
-class MemmapIterator():
+class MultiMemmapIterator():
     def __init__(self, memmap_path, memmap_shape, images_df, num_classes=None, batch_size=32, shuffle=True, seed=None,
                  pool_wrokers=4, only_single=False, include_singles=True, max_images=2):
         if seed:
