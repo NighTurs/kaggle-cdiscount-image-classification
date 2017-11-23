@@ -177,14 +177,20 @@ def predict(memmap_path, memmap_len, prod_info, sample_prod_info, models_dir, us
     steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
     while offset < images_df.shape[0]:
+        end_idx = min(images_df.shape[0], offset + MAX_PREDICTIONS_AT_TIME - 5)
+        while end_idx < images_df.shape[0]:
+            if images_df.iloc[end_idx - 1].product_id == images_df.iloc[end_idx].product_id:
+                end_idx += 1
+            else:
+                break
         it = MemmapIterator(memmap_path=memmap_path,
                             memmap_shape=(memmap_len, 2048),
-                            images_df=images_df[offset:],
+                            images_df=images_df[offset:end_idx],
                             batch_size=batch_size,
                             pool_wrokers=1,
                             use_side_input=use_side_input,
                             shuffle=False)
-        preds = model.predict_generator(it, min(steps, (images_df.shape[0] - offset) / batch_size),
+        preds = model.predict_generator(it, it.samples / batch_size,
                                         verbose=1, max_queue_size=10)
         it.terminate()
         del it
