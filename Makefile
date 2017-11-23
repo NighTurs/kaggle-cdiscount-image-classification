@@ -133,14 +133,29 @@ train_resnet50_vecs: ${DATA_INTERIM}/train_product_info.csv
 		--save_step 100000 \
 		--shuffle 123
 
-## Product shuffle for ResNet50 vectors
-train_resnet50_vecs_prod_shuf: ${TRAIN_RESNET50_VECS_PATH} ${DATA_INTERIM}/train_split.csv
-	pipenv run $(PYTHON_INTERPRETER) -m src.data.product_shuffle \
-		--train_product_info ${DATA_INTERIM}/train_product_info.csv \
-		--train_split ${DATA_INTERIM}/train_split.csv \
-		--bcolz_input ${TRAIN_RESNET50_VECS_PATH} \
-		--bcolz_output ${TRAIN_RESNET50_VECS_PROD_SHUF_PATH} \
-		--shuffle 123
+## Transform ResNet50 train vectors from bcolz to memmap
+train_resnet50_to_memmap: ${TRAIN_RESNET50_VECS_PATH}
+	 pipenv run $(PYTHON_INTERPRETER) -m src.model.bcolz_to_memmap \
+	    --bcolz_path ${TRAIN_RESNET50_VECS_PATH} \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH}
+
+## Transform ResNet50 test vectors from bcolz to memmap
+test_resnet50_to_memmap: ${TRAIN_RESNET50_VECS_PATH}
+	 pipenv run $(PYTHON_INTERPRETER) -m src.model.bcolz_to_memmap \
+	    --bcolz_path ${TEST_RESNET50_VECS_PATH} \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH}
+
+## Transform VGG16 train vectors from bcolz to memmap
+train_vgg16_to_memmap: ${TRAIN_VGG16_VECS_PATH}
+	 pipenv run $(PYTHON_INTERPRETER) -m src.model.bcolz_to_memmap \
+	    --bcolz_path ${TRAIN_VGG16_VECS_PATH} \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH}
+
+## Transform VGG16 test vectors from bcolz to memmap
+test_vgg16_to_memmap: ${TEST_VGG16_VECS_PATH}
+	 pipenv run $(PYTHON_INTERPRETER) -m src.model.bcolz_to_memmap \
+	    --bcolz_path ${TEST_VGG16_VECS_PATH} \
+		--memmap_path ${TEST_VGG16_VECS_MEMMAP_PATH}
 
 ## Create category indexes
 category_indexes: ${DATA_INTERIM}/category_idx.csv
