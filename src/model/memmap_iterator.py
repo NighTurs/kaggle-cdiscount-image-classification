@@ -40,7 +40,7 @@ class MemmapIterator():
         self.samples = len(self.smpls)
         self.rnd = np.random.RandomState(seed)
         self.it = Iterator(self.samples, self.batch_size, self.shuffle, seed)
-        self.queue = mp.Queue(maxsize=10)
+        self.queue = mp.Queue(maxsize=40)
         self.stop_flag = False
         self.threads = []
         for i in range(pool_wrokers):

@@ -29,7 +29,7 @@ MAX_PREDICTIONS_AT_TIME = 50000
 
 
 def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train_split, category_idx, batch_size,
-               shuffle=None, batch_seed=123, max_images=2):
+               shuffle=None, batch_seed=123, max_images=2, only_single=False):
     images_df = create_images_df(bcolz_prod_info, False)
     bcolz_prod_info['category_idx'] = map_categories(category_idx, bcolz_prod_info['category_id'])
     bcolz_prod_info = bcolz_prod_info.merge(train_split, on='product_id', how='left')
@@ -51,7 +51,7 @@ def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train
                               num_classes=num_classes,
                               seed=batch_seed,
                               batch_size=batch_size,
-                              only_single=False,
+                              only_single=only_single,
                               include_singles=True,
                               max_images=max_images,
                               pool_wrokers=4,
@@ -133,7 +133,7 @@ def fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, models_dir, lr
                         validation_steps=valid_sngl_it.samples / batch_size,
                         epochs=epochs,
                         callbacks=[checkpointer, csv_logger],
-                        max_queue_size=2,
+                        max_queue_size=10,
                         use_multiprocessing=False)
 
     with open(os.path.join(models_dir, LOG_FILE), "a") as file:
@@ -169,6 +169,8 @@ if __name__ == '__main__':
     parser.add_argument('--memmap_len', type=int, required=True, help='Number of rows in memmap')
     parser.set_defaults(two_outs=False)
     parser.add_argument('--max_images', type=int, default=2, required=False, help='Max images in train record')
+    parser.add_argument('--only_single', action='store_true', dest='only_single')
+    parser.set_defaults(only_single=False)
 
     args = parser.parse_args()
     if not os.path.isdir(args.models_dir):
@@ -189,7 +191,8 @@ if __name__ == '__main__':
                                                                         args.batch_size,
                                                                         args.shuffle,
                                                                         args.batch_seed,
-                                                                        args.max_images)
+                                                                        args.max_images,
+                                                                        args.only_single)
         fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, args.models_dir, args.lr, args.batch_size,
                   args.epochs,
                   args.mode,
