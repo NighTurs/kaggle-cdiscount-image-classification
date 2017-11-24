@@ -1204,6 +1204,31 @@ resnet50_head_top_2000_v7_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_I
 		--batch_size 250 \
 		--shuffle 123
 
+## Predict valid head dense layer of ResNet50 on top 2000 categories V7
+resnet50_head_top_2000_v7_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v7 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 2000 categories V7
+resnet50_head_top_2000_v7_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v7 \
+		--batch_size 250
+
 ## Train head dense layer of ResNet50 on top 2000 categories V8
 resnet50_head_top_2000_v8: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v3/model.h5
@@ -1245,6 +1270,31 @@ resnet50_head_top_2000_v8_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_I
         --models_dir models/resnet50_head_top_2000_v8 \
 		--batch_size 250 \
 		--shuffle 123
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V8
+resnet50_head_top_2000_v8_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v8 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 2000 categories V8
+resnet50_head_top_2000_v8_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v8 \
+		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 2000 categories V9
 resnet50_head_top_2000_v9: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -1288,6 +1338,31 @@ resnet50_head_top_2000_v9_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_I
 		--batch_size 250 \
 		--shuffle 123
 
+## Predict valid head dense layer of ResNet50 on top 2000 categories V9
+resnet50_head_top_2000_v9_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v9 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 2000 categories V9
+resnet50_head_top_2000_v9_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v9 \
+		--batch_size 250
+
 ## Train head dense layer of ResNet50 on top 2000 categories V10
 resnet50_head_top_2000_v10: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v5/model.h5
@@ -1330,6 +1405,31 @@ resnet50_head_top_2000_v10_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_
 		--batch_size 250 \
 		--shuffle 123
 
+## Predict valid head dense layer of ResNet50 on top 2000 categories V10
+resnet50_head_top_2000_v10_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v10 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 2000 categories V10
+resnet50_head_top_2000_v10_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v10 \
+		--batch_size 250
+
 ## Train head dense layer of ResNet50 on top 2000 categories V11
 resnet50_head_top_2000_v11: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_v6/model.h5
@@ -1371,6 +1471,31 @@ resnet50_head_top_2000_v11_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_
         --models_dir models/resnet50_head_top_2000_v11 \
 		--batch_size 250 \
 		--shuffle 123
+
+## Predict valid head dense layer of ResNet50 on top 2000 categories V11
+resnet50_head_top_2000_v11_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v11 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 2000 categories V11
+resnet50_head_top_2000_v11_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_v11 \
+		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 3000 categories V1
 resnet50_head_top_3000_v1: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -1430,6 +1555,31 @@ resnet50_head_top_3000_v2_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_I
         --models_dir models/resnet50_head_top_3000_v2 \
 		--batch_size 250 \
 		--shuffle 123
+
+## Predict valid head dense layer of ResNet50 on top 3000 categories V2
+resnet50_head_top_3000_v2_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_v2 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 3000 categories V2
+resnet50_head_top_3000_v2_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_v2 \
+		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 3000 categories V3
 resnet50_head_top_3000_v3: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -1508,6 +1658,31 @@ resnet50_head_full_v2_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTER
         --models_dir models/resnet50_head_full_v2 \
 		--batch_size 250 \
 		--shuffle 123
+
+## Predict valid head dense layer of ResNet50 on all categories V2
+resnet50_head_full_v2_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_full_v2 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of ResNet50 on top 3000 categories V2
+resnet50_head_full_v2_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_resnet50_memmap_vecs --predict \
+		--memmap_path ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_full_v2 \
+		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 2000 categories with img features V1
 resnet50_head_top_2000_img_idx_v1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
