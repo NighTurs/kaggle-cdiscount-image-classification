@@ -37,14 +37,11 @@ class SpecialIterator(Iterator):
         images = prods.merge(self.x, on=['product_id', 'img_idx'], how='left')
         p = np.zeros((len(index_array), self.num_classes, self.n_models), dtype=np.float32)
         m = np.zeros((len(index_array), self.n_models), dtype=np.int32)
-        for group, models in images.groupby(['product_id', 'img_idx']):
-            prod_i = pd[(group[0], group[1])]
-            for model_i, (model, preds) in enumerate(models.groupby('model')):
-                m[prod_i, model_i] = model
-                for row in preds.itertuples():
-                    p[prod_i, row.category_idx, model_i] = row.prob
+        for row in images.itertuples():
+            p[pd[(row.product_id, row.img_idx)], row.category_idx, row.model] = row.prob
 
-        return [m, p[:, :CATEGORIES_SPLIT, :], p[:, CATEGORIES_SPLIT:, :]], cats['category_idx'].as_matrix()
+        return [np.repeat(np.arange(self.n_models).reshape(1, self.n_models), len(index_array), axis=0),
+                p[:, :CATEGORIES_SPLIT, :], p[:, CATEGORIES_SPLIT:, :]], cats['category_idx'].as_matrix()
 
 
 def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr, seed, batch_size):
