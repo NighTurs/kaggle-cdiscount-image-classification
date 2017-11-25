@@ -110,7 +110,7 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
 
     dfs = []
     with tqdm() as pbar:
-        v = torch.from_numpy(np.zeros((batch_size, 3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), dtype=np.float32))
+        v = torch.from_numpy(np.zeros((batch_size + 3, 3, CDISCOUNT_HEIGHT, CDISCOUNT_WIDTH), dtype=np.float32))
         ids = []
         for d in bson_iter:
             product_id = d['_id']
