@@ -1678,7 +1678,8 @@ vgg16_head_full_v4_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INT
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_full_v4 \
 		--batch_size 250 \
-		--shuffle 123
+		--shuffle 123 \
+		--use_img_idx
 
 ## Predict test head dense layer of VGG16 on all categories V4
 vgg16_head_full_v4_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
@@ -1690,7 +1691,8 @@ vgg16_head_full_v4_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTER
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_full_v4 \
-		--batch_size 250
+		--batch_size 250 \
+		--use_img_idx
 
 ## Train head dense layer of VGG16 on all categories V5
 vgg16_head_full_v5: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -1724,7 +1726,8 @@ vgg16_head_full_v5_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INT
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_full_v5 \
 		--batch_size 250 \
-		--shuffle 123
+		--shuffle 123 \
+		--use_img_idx
 
 ## Predict test head dense layer of VGG16 on all categories V5
 vgg16_head_full_v5_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
@@ -1736,7 +1739,8 @@ vgg16_head_full_v5_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTER
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_full_v5 \
-		--batch_size 250
+		--batch_size 250 \
+		--use_img_idx
 
 ## Train head dense layer of ResNet50 on top 2000 categories V1
 resnet50_head_top_2000_v1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
