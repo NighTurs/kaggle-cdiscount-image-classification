@@ -2980,6 +2980,33 @@ models/LB_0_69565_inc3_00075000_model
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896
 
+## Predict single Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_inception3_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction
+
+## Predict single valid split Inception3 model by Heng Cherkeng
+heng_inception3_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction
+
 ## Form submission for Inception3 model by Heng Cherkeng
 heng_inception3_submission: data/processed/heng_inception3_submission.csv
 
@@ -3014,6 +3041,33 @@ models/LB_0_69673_se_inc3_00026000_model
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896
 
+## Predict single SEInception3 model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_seinception3_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 500 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction
+
+## Predict single valid split SEInception3 model by Heng Cherkeng
+heng_seinception3_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 500 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction
+
 ## Predict Xception model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_xception_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -3038,6 +3092,33 @@ models/LB_0_69422_xception_00158000_model
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896
+
+## Predict single Xception model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_xception_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction
+
+## Predict single valid split Xception model by Heng Cherkeng
+heng_xception_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction
 
 ## Predict ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
@@ -3064,6 +3145,33 @@ models/resnet101_00243000_model
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896
 
+## Predict single ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
+## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
+heng_resnet101_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/resnet101_00243000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name resnet101 \
+		--model_dir models/resnet101_00243000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction
+
+## Predict single valid split ResNet101 model by Heng Cherkeng
+heng_resnet101_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/resnet101_00243000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name resnet101 \
+		--model_dir models/resnet101_00243000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction
+
 ## Train ensemble of Heng Cherkeng models V1
 ensemble_nn_heng_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
@@ -3087,6 +3195,31 @@ ensemble_nn_heng_v1_test: models/ensemble_nn_heng_v1/model.h5
 				models/resnet101_00243000_model/predictions.csv \
 				models/LB_0_69422_xception_00158000_model/predictions.csv \
 			--model_dir models/ensemble_nn_heng_v1
+
+## Train ensemble of Heng Cherkeng single models V1
+ensemble_nn_heng_v1_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions.csv \
+				models/resnet101_00243000_model/valid_single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_heng_v1_sngl \
+			--seed 414 \
+			--lr 0.01 \
+			--epochs 3
+
+## Predict ensemble of Heng Cherkeng single models V1
+ensemble_nn_heng_v1_sngl_test: models/ensemble_nn_heng_v1_sngl/model.h5
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/single_predictions.csv \
+				models/resnet101_00243000_model/single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/single_predictions.csv \
+			--model_dir models/ensemble_nn_heng_v1_sngl
 
 ## Train ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv

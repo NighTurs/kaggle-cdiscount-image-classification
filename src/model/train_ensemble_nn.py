@@ -44,7 +44,7 @@ class SpecialIterator(Iterator):
                 p[:, :CATEGORIES_SPLIT, :], p[:, CATEGORIES_SPLIT:, :]], cats['category_idx'].as_matrix()
 
 
-def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr, seed, batch_size):
+def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, lr, seed, batch_size, epochs):
     prod_info = pd.read_csv(prod_info_csv)
     category_idx = pd.read_csv(category_idx_csv)
 
@@ -97,7 +97,7 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
     model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
                   metrics=['sparse_categorical_accuracy'])
 
-    model.fit_generator(it, steps_per_epoch=it.samples / it.batch_size, epochs=1)
+    model.fit_generator(it, steps_per_epoch=it.samples / it.batch_size, epochs=epochs)
 
     print('First {} categories model weights:'.format(CATEGORIES_SPLIT))
     print(model.get_layer('embedding_1').get_weights())
@@ -117,8 +117,9 @@ if __name__ == '__main__':
     parser.add_argument('--model_dir', required=True, help='Model directory')
     parser.add_argument('--lr', type=float, default=0.01, required=False, help='Learning rate')
     parser.add_argument('--seed', type=int, default=456, required=False, help='Learning seed')
+    parser.add_argument('--epochs', type=int, default=1, required=False, help='Epochs')
     parser.add_argument('--batch_size', type=int, default=2000, required=False, help='Batch size')
 
     args = parser.parse_args()
     train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr, args.seed,
-                      args.batch_size)
+                      args.batch_size, args.epochs)

@@ -5,6 +5,7 @@ import torch
 import cv2
 import os
 import bson
+import itertools
 from tqdm import tqdm
 from torch.autograd import Variable
 import torch.nn.functional as F
@@ -49,27 +50,41 @@ def image_to_tensor_transform(image):
     return tensor
 
 
-def doit(net, vecs, ids, dfs, label_to_category_id, category_dict, top_k=10):
+def doit(net, vecs, ids, dfs, label_to_category_id, category_dict, top_k=10, single_prediction=False):
     x = Variable(vecs, volatile=True).cuda()
     logits = net(x)
-    probs = F.softmax(logits)
-    probs = probs.cpu().data.numpy()
+    preds = F.softmax(logits)
+    preds = preds.cpu().data.numpy()
 
-    top_k_preds = np.argpartition(probs, -top_k)[:, -top_k:]
-    chunk = []
-    for i in range(len(ids)):
-        product_id = ids[i][0]
-        img_idx = ids[i][1]
-        for pred_idx in range(top_k):
-            chunk.append(
-                (product_id, img_idx, category_dict[label_to_category_id[top_k_preds[i, pred_idx]]],
-                 probs[i, top_k_preds[i, pred_idx]]))
+    if single_prediction:
+        product_start = 0
+        prev_product_id = 0
+        chunk = []
+        for i, tuple in enumerate(itertools.chain(ids, [(1, 0)])):
+            if prev_product_id != 0 and prev_product_id != tuple[0]:
+                prods = preds[product_start:i].prod(axis=-2)
+                prods = prods / prods.sum()
+                top_k_preds = np.argpartition(prods, -top_k)[-top_k:]
+                for pred_idx in range(top_k):
+                    chunk.append((prev_product_id, 0, top_k_preds[pred_idx], prods[top_k_preds[pred_idx]]))
+                product_start = i
+            prev_product_id = tuple[0]
+    else:
+        top_k_preds = np.argpartition(preds, -top_k)[:, -top_k:]
+        chunk = []
+        for i in range(len(ids)):
+            product_id = ids[i][0]
+            img_idx = ids[i][1]
+            for pred_idx in range(top_k):
+                chunk.append(
+                    (product_id, img_idx, category_dict[label_to_category_id[top_k_preds[i, pred_idx]]],
+                     preds[i, top_k_preds[i, pred_idx]]))
     chunk_df = pd.DataFrame(chunk, columns=['product_id', 'img_idx', 'category_idx', 'prob'])
     dfs.append(chunk_df)
 
 
 def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, batch_size, category_idx, is_pred_valid,
-                  train_ids_file):
+                  train_ids_file, single_prediction=False):
     category_dict = category_to_index_dict(category_idx)
 
     if model_name == 'inception':
@@ -107,12 +122,12 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
                 x = image_to_tensor_transform(image)
                 v[len(ids)] = x
                 ids.append((product_id, e))
-                if len(ids) == batch_size:
-                    doit(net, v, ids, dfs, label_to_category_id, category_dict)
-                    pbar.update(len(ids))
-                    ids = []
+            if len(ids) >= batch_size:
+                doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction)
+                pbar.update(len(ids))
+                ids = []
         if len(ids) > 0:
-            doit(net, v, ids, dfs, label_to_category_id, category_dict)
+            doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction)
             pbar.update(len(ids))
 
     return pd.concat(dfs)
@@ -129,15 +144,24 @@ if __name__ == '__main__':
     parser.add_argument('--predict_valid', action='store_true', required=False, dest='is_predict_valid')
     parser.set_defaults(is_predict_valid=False)
     parser.add_argument('--train_ids_file', required=False, help='Path to Hengs with train ids')
+    parser.add_argument('--single_prediction', action='store_true', required=False, dest='single_prediction')
+    parser.set_defaults(single_prediction=False)
 
     args = parser.parse_args()
 
     category_idx = pd.read_csv(args.category_idx_csv)
 
     preds = model_predict(args.bson, args.model_name, args.model_dir, args.label_to_category_id_file, args.batch_size,
-                          category_idx, args.is_predict_valid, args.train_ids_file)
+                          category_idx, args.is_predict_valid, args.train_ids_file, args.single_prediction)
     if args.is_predict_valid:
-        preds.to_csv(os.path.join(args.model_dir, 'valid_predictions.csv'), index=False)
+        if args.single_prediction:
+            csv_name = 'valid_single_predictions.csv'
+        else:
+            csv_name = 'valid_predictions.csv'
     else:
-        preds.to_csv(os.path.join(args.model_dir, 'predictions.csv'), index=False)
+        if args.single_prediction:
+            csv_name = 'single_predictions.csv'
+        else:
+            csv_name = 'predictions.csv'
+    preds.to_csv(os.path.join(args.model_dir, csv_name), index=False)
 
