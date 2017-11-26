@@ -3054,7 +3054,7 @@ models/LB_0_69673_se_inc3_00026000_model
 		--model_name seinception \
 		--model_dir models/LB_0_69673_se_inc3_00026000_model \
 		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
-		--batch_size 500 \
+		--batch_size 400 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--single_prediction
 
@@ -3066,7 +3066,7 @@ models/LB_0_69673_se_inc3_00026000_model
 		--model_name seinception \
 		--model_dir models/LB_0_69673_se_inc3_00026000_model \
 		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
-		--batch_size 500 \
+		--batch_size 400 \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
