@@ -25,10 +25,12 @@ def read_label_to_category_id(file):
         d = eval(file.read())
     return d
 
+
 def read_train_ids(file):
     with open(file, 'r') as file:
         lines = file.readlines()
     return {int(line) for line in lines}
+
 
 def pytorch_image_to_tensor_transform(image):
     mean = [0.485, 0.456, 0.406]
@@ -66,7 +68,8 @@ def doit(net, vecs, ids, dfs, label_to_category_id, category_dict, top_k=10, sin
                 prods = prods / prods.sum()
                 top_k_preds = np.argpartition(prods, -top_k)[-top_k:]
                 for pred_idx in range(top_k):
-                    chunk.append((prev_product_id, 0, top_k_preds[pred_idx], prods[top_k_preds[pred_idx]]))
+                    chunk.append((prev_product_id, 0, category_dict[label_to_category_id[top_k_preds[pred_idx]]],
+                                  prods[top_k_preds[pred_idx]]))
                 product_start = i
             prev_product_id = tuple[0]
     else:
@@ -123,11 +126,11 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
                 v[len(ids)] = x
                 ids.append((product_id, e))
             if len(ids) >= batch_size:
-                doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction)
+                doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction=single_prediction)
                 pbar.update(len(ids))
                 ids = []
         if len(ids) > 0:
-            doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction)
+            doit(net, v, ids, dfs, label_to_category_id, category_dict, single_prediction=single_prediction)
             pbar.update(len(ids))
 
     return pd.concat(dfs)
@@ -164,4 +167,3 @@ if __name__ == '__main__':
         else:
             csv_name = 'predictions.csv'
     preds.to_csv(os.path.join(args.model_dir, csv_name), index=False)
-
