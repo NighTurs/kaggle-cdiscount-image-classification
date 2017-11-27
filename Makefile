@@ -3223,7 +3223,8 @@ ensemble_nn_heng_v1_sngl_test: models/ensemble_nn_heng_v1_sngl/model.h5
 				models/LB_0_69673_se_inc3_00026000_model/single_predictions.csv \
 				models/resnet101_00243000_model/single_predictions.csv \
 				models/LB_0_69422_xception_00158000_model/single_predictions.csv \
-			--model_dir models/ensemble_nn_heng_v1_sngl
+			--model_dir models/ensemble_nn_heng_v1_sngl \
+			--total_records 17681820
 
 ## Train ensemble of VGG16 models V1
 ensemble_nn_vgg16_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
@@ -3522,7 +3523,7 @@ ensemble_nn_vgg16_resnet50_v1_test: models/ensemble_nn_vgg16_resnet50_v1/model.h
 ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
 			--preds_csvs \
-				models/vgg16_head_top_2000_v1/valid_single_predictions.csv \
+			    models/vgg16_head_top_2000_v1/valid_single_predictions.csv \
 				models/vgg16_head_top_2000_v2/valid_single_predictions.csv \
 				models/vgg16_head_top_2000_v3/valid_single_predictions.csv \
 				models/vgg16_head_top_2000_v4/valid_single_predictions.csv \
@@ -3541,7 +3542,6 @@ ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DAT
 				models/vgg16_head_top_2000_v21/valid_single_predictions.csv \
 				models/vgg16_head_top_2000_v22/valid_single_predictions.csv \
 				models/vgg16_head_top_3000_v4/valid_single_predictions.csv \
-				models/vgg16_head_top_3000_v5/valid_single_predictions.csv \
 				models/vgg16_head_full_v4/valid_single_predictions.csv \
 				models/vgg16_head_full_v5/valid_single_predictions.csv \
 				models/resnet50_head_top_2000_v7/valid_single_predictions.csv \
@@ -3565,7 +3565,8 @@ ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DAT
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v1 \
 			--lr 0.01 \
-			--epochs 4
+			--epochs 4 \
+			--batch_size 1500
 
 ## Predict ensemble of VGG16 and ResNet50 single models V1
 ensemble_nn_vgg16_resnet50_sngl_v1_test: models/ensemble_nn_vgg16_resnet50_sngl_v1/model.h5
