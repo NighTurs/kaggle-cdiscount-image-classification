@@ -3808,6 +3808,25 @@ data/processed/ensemble_fixed_V10_sum_submission.csv: models/ensemble_fixed_V10/
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V10_sum_submission.csv
 
+## Ensemble with fixed weights V11
+ensemble_fixed_V11: models/ensemble_nn_heng_v1_sngl/predictions.csv \
+	models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/ensemble_nn_heng_v1_sngl/predictions.csv \
+				models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv \
+			--weights 0.45 0.55 \
+			--model_dir models/ensemble_fixed_V11
+
+## Form sum submission for ensemble with fixed weights V11
+ensemble_fixed_V11_sum_submission: data/processed/ensemble_fixed_V11_sum_submission.csv
+
+data/processed/ensemble_fixed_V11_sum_submission.csv: models/ensemble_fixed_V11/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_fixed_V11/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V11_sum_submission.csv
+
 #################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################
