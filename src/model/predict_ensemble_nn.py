@@ -31,6 +31,7 @@ if __name__ == '__main__':
                 weight_right = weights_right[0][i][0]
                 preds = pd.read_csv(csv, skiprows=skiprows, nrows=TOP_PREDS * PRODS_BATCH,
                                     names=['product_id', 'img_idx', 'category_idx', 'prob'])
+                preds.fillna(0, inplace=True)
                 preds.loc[preds.category_idx < CATEGORIES_SPLIT, 'prob'] = \
                     preds.loc[preds.category_idx < CATEGORIES_SPLIT, 'prob'] * weight_left
                 preds.loc[preds.category_idx >= CATEGORIES_SPLIT, 'prob'] = \

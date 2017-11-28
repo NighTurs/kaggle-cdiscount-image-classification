@@ -3612,7 +3612,8 @@ ensemble_nn_vgg16_resnet50_sngl_v1_test: models/ensemble_nn_vgg16_resnet50_sngl_
 				models/resnet50_head_top_3000_img_idx_v2/single_predictions.csv \
 				models/resnet50_head_full_img_idx_v1/single_predictions.csv \
 				models/resnet50_head_full_img_idx_v2/single_predictions.csv \
-			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v1
+			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v1 \
+			--total_records 17681820
 
 ## Ensemble with fixed weights V1
 ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
@@ -3787,6 +3788,25 @@ data/processed/ensemble_fixed_V9_sum_submission.csv: models/ensemble_fixed_V9/pr
 		--preds_csv models/ensemble_fixed_V9/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V9_sum_submission.csv
+
+## Ensemble with fixed weights V10
+ensemble_fixed_V10: models/ensemble_nn_heng_v1_sngl/predictions.csv \
+	models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/ensemble_nn_heng_v1_sngl/predictions.csv \
+				models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv \
+			--weights 0.5 0.5 \
+			--model_dir models/ensemble_fixed_V10
+
+## Form sum submission for ensemble with fixed weights V10
+ensemble_fixed_V10_sum_submission: data/processed/ensemble_fixed_V10_sum_submission.csv
+
+data/processed/ensemble_fixed_V10_sum_submission.csv: models/ensemble_fixed_V10/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_fixed_V10/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V10_sum_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
