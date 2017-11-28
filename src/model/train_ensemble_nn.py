@@ -36,9 +36,8 @@ class SpecialIterator(Iterator):
         cats = self.categories.loc[prods.product_id]
         images = prods.merge(self.x, on=['product_id', 'img_idx'], how='left')
         p = np.zeros((len(index_array), self.num_classes, self.n_models), dtype=np.float32)
-        m = np.zeros((len(index_array), self.n_models), dtype=np.int32)
         for row in images.itertuples():
-            p[pd[(row.product_id, row.img_idx)], row.category_idx, row.model] = row.prob
+            p[pd[(row.product_id, row.img_idx)], row.category_idx, row.model] = 0 if np.isnan(row.prob) else row.prob
 
         return [np.repeat(np.arange(self.n_models).reshape(1, self.n_models), len(index_array), axis=0),
                 p[:, :CATEGORIES_SPLIT, :], p[:, CATEGORIES_SPLIT:, :]], cats['category_idx'].as_matrix()

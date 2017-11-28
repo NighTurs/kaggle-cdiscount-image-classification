@@ -3542,6 +3542,7 @@ ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DAT
 				models/vgg16_head_top_2000_v21/valid_single_predictions.csv \
 				models/vgg16_head_top_2000_v22/valid_single_predictions.csv \
 				models/vgg16_head_top_3000_v4/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v5/valid_single_predictions.csv \
 				models/vgg16_head_full_v4/valid_single_predictions.csv \
 				models/vgg16_head_full_v5/valid_single_predictions.csv \
 				models/resnet50_head_top_2000_v7/valid_single_predictions.csv \
