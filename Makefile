@@ -3011,6 +3011,38 @@ models/LB_0_69565_inc3_00075000_model
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
 		--single_prediction
 
+## Predict single Inception3 model by Heng Cherkeng
+heng_inception3_tta_v1_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8744 \
+		--csv_suffix _tta_v1
+
+## Predict single valid split Inception3 model by Heng Cherkeng
+heng_inception3_tta_v1_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8744 \
+		--csv_suffix _tta_v1
+
 ## Form submission for Inception3 model by Heng Cherkeng
 heng_inception3_submission: data/processed/heng_inception3_submission.csv
 
@@ -3072,6 +3104,38 @@ models/LB_0_69673_se_inc3_00026000_model
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
 		--single_prediction
 
+## Predict single SEInception3 model by Heng Cherkeng
+heng_seinception3_tta_v1_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 400 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8743 \
+		--csv_suffix _tta_v1
+
+## Predict single valid split SEInception3 model by Heng Cherkeng
+heng_seinception3_tta_v1_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 400 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8743 \
+		--csv_suffix _tta_v1
+
 ## Predict Xception model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_xception_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -3123,6 +3187,38 @@ models/LB_0_69422_xception_00158000_model
 		--predict_valid \
 		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
 		--single_prediction
+
+## Predict single Xception model by Heng Cherkeng
+heng_xception_tta_v1_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8742 \
+		--csv_suffix _tta_v1
+
+## Predict single valid split Xception model by Heng Cherkeng
+heng_xception_tta_v1_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 8742 \
+		--csv_suffix _tta_v1
 
 ## Predict ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
@@ -3224,6 +3320,38 @@ ensemble_nn_heng_v1_sngl_test: models/ensemble_nn_heng_v1_sngl/model.h5
 				models/resnet101_00243000_model/single_predictions.csv \
 				models/LB_0_69422_xception_00158000_model/single_predictions.csv \
 			--model_dir models/ensemble_nn_heng_v1_sngl \
+			--total_records 17681820
+
+## Train ensemble of Heng Cherkeng single models V2
+ensemble_nn_heng_v2_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions.csv \
+				models/resnet101_00243000_model/valid_single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions.csv \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions_tta_v1.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions_tta_v1.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions_tta_v1.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_heng_v2_sngl \
+			--seed 414 \
+			--lr 0.01 \
+			--epochs 15
+
+## Predict ensemble of Heng Cherkeng single models V2
+ensemble_nn_heng_v2_sngl_test: models/ensemble_nn_heng_v2_sngl/model.h5
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/single_predictions.csv \
+				models/resnet101_00243000_model/single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/single_predictions.csv \
+				models/LB_0_69565_inc3_00075000_model/single_predictions_tta_v1.csv \
+				models/LB_0_69673_se_inc3_00026000_model/single_predictions_tta_v1.csv \
+				models/LB_0_69422_xception_00158000_model/single_predictions_tta_v1.csv \
+			--model_dir models/ensemble_nn_heng_v2_sngl \
 			--total_records 17681820
 
 ## Train ensemble of VGG16 models V1
@@ -3864,6 +3992,25 @@ data/processed/ensemble_fixed_V14_sum_submission.csv: models/ensemble_fixed_V14/
 		--preds_csv models/ensemble_fixed_V14/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V14_sum_submission.csv
+
+## Ensemble with fixed weights V15
+ensemble_fixed_V15: models/ensemble_nn_heng_v2_sngl/predictions.csv \
+	models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/ensemble_nn_heng_v2_sngl/predictions.csv \
+				models/ensemble_nn_vgg16_resnet50_sngl_v1/predictions.csv \
+			--weights 0.4 0.6 \
+			--model_dir models/ensemble_fixed_V15
+
+## Form sum submission for ensemble with fixed weights V15
+ensemble_fixed_V15_sum_submission: data/processed/ensemble_fixed_V15_sum_submission.csv
+
+data/processed/ensemble_fixed_V15_sum_submission.csv: models/ensemble_fixed_V15/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_fixed_V15/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V15_sum_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
