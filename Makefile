@@ -3043,6 +3043,38 @@ models/LB_0_69565_inc3_00075000_model
 		--tta_seed 8744 \
 		--csv_suffix _tta_v1
 
+## Predict single Inception3 model by Heng Cherkeng
+heng_inception3_tta_v2_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 23897 \
+		--csv_suffix _tta_v2
+
+## Predict single valid split Inception3 model by Heng Cherkeng
+heng_inception3_tta_v2_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69565_inc3_00075000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name inception \
+		--model_dir models/LB_0_69565_inc3_00075000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 250 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 23897 \
+		--csv_suffix _tta_v2
+
 ## Form submission for Inception3 model by Heng Cherkeng
 heng_inception3_submission: data/processed/heng_inception3_submission.csv
 
@@ -3136,6 +3168,38 @@ models/LB_0_69673_se_inc3_00026000_model
 		--tta_seed 8743 \
 		--csv_suffix _tta_v1
 
+## Predict single SEInception3 model by Heng Cherkeng
+heng_seinception3_tta_v2_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 400 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 38973 \
+		--csv_suffix _tta_v2
+
+## Predict single valid split SEInception3 model by Heng Cherkeng
+heng_seinception3_tta_v2_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69673_se_inc3_00026000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name seinception \
+		--model_dir models/LB_0_69673_se_inc3_00026000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 400 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 38973 \
+		--csv_suffix _tta_v2
+
 ## Predict Xception model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_xception_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -3219,6 +3283,38 @@ models/LB_0_69422_xception_00158000_model
 		--test_time_augmentation \
 		--tta_seed 8742 \
 		--csv_suffix _tta_v1
+
+## Predict single Xception model by Heng Cherkeng
+heng_xception_tta_v2_test_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TEST_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 234519 \
+		--csv_suffix _tta_v2
+
+## Predict single valid split Xception model by Heng Cherkeng
+heng_xception_tta_v2_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 234519 \
+		--csv_suffix _tta_v2
 
 ## Predict ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
