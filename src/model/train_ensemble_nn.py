@@ -13,6 +13,7 @@ from keras.models import Model
 from keras.initializers import Ones
 from keras.optimizers import Adam
 from keras.models import load_model
+from keras.constraints import non_neg
 
 N_CATEGORIES = 5270
 CATEGORIES_SPLIT = 2000
@@ -75,10 +76,12 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
         preds_cat1_inp = Input((CATEGORIES_SPLIT, n_models))
         preds_cat2_inp = Input((N_CATEGORIES - CATEGORIES_SPLIT, n_models))
 
-        mul_cat1 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
+        mul_cat1 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones(),
+                             embeddings_constraint=non_neg())(model_inp)
         mul_cat1 = Flatten()(mul_cat1)
 
-        mul_cat2 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones())(model_inp)
+        mul_cat2 = Embedding(n_models, 1, input_length=n_models, embeddings_initializer=Ones(),
+                             embeddings_constraint=non_neg())(model_inp)
         mul_cat2 = Flatten()(mul_cat2)
 
         def op(x):
