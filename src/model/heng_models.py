@@ -18,7 +18,6 @@ from src.data.category_idx import category_to_index_dict
 CDISCOUNT_NUM_CLASSES = 5270
 CDISCOUNT_HEIGHT = 180
 CDISCOUNT_WIDTH = 180
-CROP_RANGE = 20
 
 
 def read_label_to_category_id(file):
@@ -88,7 +87,7 @@ def doit(net, vecs, ids, dfs, label_to_category_id, category_dict, top_k=10, sin
 
 
 def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, batch_size, category_idx, is_pred_valid,
-                  train_ids_file, single_prediction=False, test_time_augmentation=False, tta_seed=123):
+                  train_ids_file, single_prediction=False, test_time_augmentation=False, tta_seed=123, crop_range=20):
     category_dict = category_to_index_dict(category_idx)
 
     if model_name == 'inception':
@@ -126,8 +125,8 @@ def model_predict(bson_file, model_name, model_dir, label_to_category_id_file, b
             for e, pic in enumerate(d['imgs']):
                 image = cv2.imdecode(np.fromstring(pic['picture'], np.uint8), 1)
                 if test_time_augmentation:
-                    image = cv2.resize(image, (CDISCOUNT_HEIGHT + CROP_RANGE, CDISCOUNT_WIDTH + CROP_RANGE))
-                    crop = rnd.randint(0, CROP_RANGE, 2)
+                    image = cv2.resize(image, (CDISCOUNT_HEIGHT + crop_range, CDISCOUNT_WIDTH + crop_range))
+                    crop = rnd.randint(0, crop_range, 2)
                     image = image[crop[0]:(crop[0] + CDISCOUNT_HEIGHT), crop[1]:(crop[1] + CDISCOUNT_WIDTH)]
                 x = image_to_tensor_transform(image)
                 v[len(ids)] = x
@@ -160,6 +159,7 @@ if __name__ == '__main__':
     parser.set_defaults(test_time_augmentation=False)
     parser.add_argument('--tta_seed', type=int, required=False, default=123)
     parser.add_argument('--csv_suffix', required=False, default='')
+    parser.add_argument('--crop_range', type=int, required=False, default=20)
 
     args = parser.parse_args()
 
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     preds = model_predict(args.bson, args.model_name, args.model_dir, args.label_to_category_id_file, args.batch_size,
                           category_idx, args.is_predict_valid, args.train_ids_file, args.single_prediction,
                           args.test_time_augmentation,
-                          args.tta_seed)
+                          args.tta_seed, args.crop_range)
     if args.is_predict_valid:
         if args.single_prediction:
             csv_name = 'valid_single_predictions{}.csv'
