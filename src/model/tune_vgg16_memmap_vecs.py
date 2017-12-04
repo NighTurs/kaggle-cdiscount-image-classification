@@ -16,6 +16,7 @@ from keras.optimizers import Adam
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
+from keras.callbacks import LearningRateScheduler
 from src.data.category_idx import map_categories
 from src.model.resnet50_vecs import create_images_df
 from src.model.memmap_iterator import MemmapIterator
@@ -66,7 +67,9 @@ def train_data(memmap_path, memmap_len, prod_info, sample_prod_info, train_split
     return train_it, valid_it, num_classes
 
 
-def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=64, epochs=1, mode=0, seed=125):
+def fit_model(train_it, valid_it, num_classes, models_dir, lr=None, batch_size=64, epochs=1, mode=0, seed=125):
+    if lr is None:
+        lr = [0.001]
     model_file = os.path.join(models_dir, LOAD_MODEL)
     if os.path.exists(model_file):
         model = load_model(model_file)
@@ -208,21 +211,25 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=0.001, batch_size=
             model = Model([inp_vec, img_idx_inp], x)
 
     if mode == 6:
-        model.compile(optimizer=SGD(lr=lr), loss='sparse_categorical_crossentropy',
+        model.compile(optimizer=SGD(lr=lr[0]), loss='sparse_categorical_crossentropy',
                       metrics=['sparse_categorical_accuracy'])
     else:
-        model.compile(optimizer=Adam(lr=lr), loss='sparse_categorical_crossentropy',
+        model.compile(optimizer=Adam(lr=lr[0]), loss='sparse_categorical_crossentropy',
                       metrics=['sparse_categorical_accuracy'])
 
     np.random.seed(seed)
     checkpointer = ModelCheckpoint(filepath=os.path.join(models_dir, SNAPSHOT_MODEL))
     csv_logger = CSVLogger(os.path.join(models_dir, LOG_FILE), append=True)
+    if len(lr) > 0:
+        lr_scheduler = LearningRateScheduler(lambda x: lr[x])
+    else:
+        lr_scheduler = LearningRateScheduler(lambda x: lr[0])
     model.fit_generator(train_it,
                         steps_per_epoch=train_it.samples / batch_size,
                         validation_data=valid_it,
                         validation_steps=valid_it.samples / batch_size,
                         epochs=epochs,
-                        callbacks=[checkpointer, csv_logger])
+                        callbacks=[checkpointer, csv_logger, lr_scheduler])
 
 
 def predict(memmap_path, memmap_len, prod_info, sample_prod_info, models_dir, use_side_input=False, batch_size=200,
@@ -299,7 +306,7 @@ if __name__ == '__main__':
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
     parser.add_argument('--train_split_csv', required=True, help='Train split csv')
     parser.add_argument('--models_dir', required=True, help='Output directory for models snapshots')
-    parser.add_argument('--lr', type=float, default=0.001, required=False, help='Learning rate')
+    parser.add_argument('--lr', type=float, nargs='+', default=[0.001], required=False, help='Learning rate')
     parser.add_argument('--batch_size', type=int, default=64, required=False, help='Batch size')
     parser.add_argument('--epochs', type=int, default=1, required=False, help='Number of epochs')
     parser.add_argument('--shuffle', type=int, default=None, required=False,
