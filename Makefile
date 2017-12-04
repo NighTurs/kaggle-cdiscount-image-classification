@@ -3418,6 +3418,25 @@ models/LB_0_69422_xception_00158000_model
 		--csv_suffix _tta_v3 \
 		--crop_range 10
 
+## Predict single valid split Xception model by Heng Cherkeng
+heng_xception_tta_v4_valid_sngl: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id ${DATA_RAW}/heng_train_id_v0_7019896 \
+models/LB_0_69422_xception_00158000_model
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.heng_models \
+		--bson ${TRAIN_BSON} \
+		--model_name xception \
+		--model_dir models/LB_0_69422_xception_00158000_model \
+		--label_to_category_id_file ${DATA_RAW}/heng_label_to_cat_id \
+		--batch_size 128 \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--predict_valid \
+		--train_ids_file ${DATA_RAW}/heng_train_id_v0_7019896 \
+		--single_prediction \
+		--test_time_augmentation \
+		--tta_seed 98721 \
+		--csv_suffix _tta_v4 \
+		--crop_range 0 \
+		--rotation_max 5
+
 ## Predict ResNet101 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_resnet101_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
