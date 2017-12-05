@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 from collections import namedtuple
 from keras.preprocessing.image import Iterator
-import multiprocessing as mp
+from queue import Queue
 from threading import Thread
 
 class MultiMemmapIterator():
@@ -40,7 +40,7 @@ class MultiMemmapIterator():
         self.samples = len(self.smpls)
         self.rnd = np.random.RandomState(seed)
         self.it = Iterator(self.samples, self.batch_size, self.shuffle, seed)
-        self.queue = mp.Queue(maxsize=40)
+        self.queue = Queue(maxsize=40)
         self.stop_flag = False
         self.threads = []
         for i in range(pool_wrokers):
@@ -87,17 +87,17 @@ class MultiMemmapIterator():
     def terminate(self):
         self.stop_flag = True
         while True:
+            try:
+                while True:
+                    self.queue.get(block=False)
+            except:
+                pass
             live_threads = 0
             for thread in self.threads:
                 live_threads += 1 if thread.is_alive() else 0
             if live_threads == 0:
                 return
             print('Threads running ', live_threads)
-            try:
-                while True:
-                    self.queue.get(block=False)
-            except:
-                pass
             for thread in self.threads:
                 thread.join(timeout=5)
 
