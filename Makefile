@@ -1278,7 +1278,7 @@ ${DATA_INTERIM}/train_split.csv
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_top_2000_v24 \
 		--batch_size 500 \
-		--lr 0.001 0.0001 0.0001 0.0001 0.00001 0.00001 \
+		--lr 0.01 0.001 0.001 0.001 0.0001 0.0001 \
 		--epochs 6 \
 		--shuffle 123 \
 		--mode 16 \
