@@ -209,8 +209,19 @@ def fit_model(train_it, valid_it, num_classes, models_dir, lr=None, batch_size=6
             x = BatchNormalization(axis=-1)(x)
             x = Dense(num_classes, activation='softmax')(x)
             model = Model([inp_vec, img_idx_inp], x)
+        elif mode == 16:
+            inp_vec = Input((512, 2, 2))
+            inp_vec_f = Flatten()(inp_vec)
+            img_idx_inp = Input((8,))
+            x = concatenate([inp_vec_f, img_idx_inp])
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(4096, activation='relu')(x)
+            x = BatchNormalization(axis=-1)(x)
+            x = Dense(num_classes, activation='softmax')(x)
+            model = Model([inp_vec, img_idx_inp], x)
 
-    if mode == 6:
+    if mode == 6 or mode == 16:
         model.compile(optimizer=SGD(lr=lr[0]), loss='sparse_categorical_crossentropy',
                       metrics=['sparse_categorical_accuracy'])
     else:

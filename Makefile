@@ -1266,6 +1266,25 @@ ${DATA_INTERIM}/train_split.csv
 		--batch_seed 432190 \
 		--use_img_idx
 
+## Train head dense layer of VGG16 on top 2000 categories V24
+vgg16_head_top_2000_v24: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --fit \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v24 \
+		--batch_size 500 \
+		--lr 0.001 0.0001 0.0001 0.0001 0.00001 0.00001 \
+		--epochs 6 \
+		--shuffle 123 \
+		--mode 16 \
+		--batch_seed 49460 \
+		--use_img_idx
+
 ## Train head dense layer of VGG16 on top 3000 categories V1
 vgg16_head_top_3000_v1: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv
