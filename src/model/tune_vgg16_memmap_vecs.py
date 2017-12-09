@@ -265,7 +265,6 @@ def predict(memmap_path, memmap_len, prod_info, sample_prod_info, models_dir, us
         images_df = images_df[images_df.product_id.isin(sample_prod_info.product_id)]
     images_df.sort_values('product_id', inplace=True)
     dfs = []
-    steps = MAX_PREDICTIONS_AT_TIME // batch_size
     offset = 0
     while offset < images_df.shape[0]:
         end_idx = min(images_df.shape[0], offset + MAX_PREDICTIONS_AT_TIME - 5)
