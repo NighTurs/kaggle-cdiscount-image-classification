@@ -7,7 +7,7 @@ from threading import Thread
 
 class MultiMemmapIterator():
     def __init__(self, memmap_path, memmap_shape, images_df, num_classes=None, batch_size=32, shuffle=True, seed=None,
-                 pool_wrokers=4, only_single=False, include_singles=True, max_images=2):
+                 pool_wrokers=4, only_single=False, include_singles=True, max_images=2, use_side_input=True):
         if seed:
             np.random.seed(seed)
         self.x = np.memmap(memmap_path, dtype=np.float32, mode='r', shape=memmap_shape)
@@ -15,12 +15,14 @@ class MultiMemmapIterator():
         self.images_df_index = np.copy(self.images_df.index.values)
         self.images_df_num_imgs = np.copy(self.images_df.num_imgs.as_matrix())
         self.images_df_img_idx = np.copy(self.images_df.img_idx.as_matrix())
-        self.images_df_category_idx = np.copy(self.images_df.category_idx.as_matrix())
         self.has_y = 'category_idx' in images_df.columns
+        if self.has_y:
+            self.images_df_category_idx = np.copy(self.images_df.category_idx.as_matrix())
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.max_images = max_images
+        self.use_side_input = use_side_input
 
         self.smpls = []
         cur_index = []
@@ -55,7 +57,8 @@ class MultiMemmapIterator():
             with self.it.lock:
                 index_array = next(self.it.index_generator)[0]
             m1 = np.zeros((len(index_array), self.max_images, *self.x.shape[1:]), dtype=np.float32)
-            m2 = np.zeros((len(index_array), self.max_images, 8), dtype=np.float32)
+            if self.use_side_input:
+                m2 = np.zeros((len(index_array), self.max_images, 8), dtype=np.float32)
 
             if self.has_y:
                 p = np.zeros(len(index_array), dtype=np.float32)
@@ -64,22 +67,26 @@ class MultiMemmapIterator():
             for smpl_idx in index_array:
                 smpl = self.smpls[smpl_idx]
 
-                draft = self.rnd.permutation(len(smpl))[:self.max_images]
-
-                for cur_idx, i in zip(range(self.max_images - len(draft), self.max_images), draft):
-                    m1[bi, cur_idx] = self.x[self.images_df_index[smpl[i]]]
-                    m2[bi, cur_idx, self.images_df_num_imgs[smpl[i]] - 1] = 1
-                    m2[bi, cur_idx, 4 + self.images_df_img_idx[smpl[i]]] = 1
-                    cur_idx += 1
+                for i in smpl:
+                    cur_idx = 3 - self.images_df_img_idx[i]
+                    m1[bi, cur_idx] = self.x[self.images_df_index[i]]
+                    if self.use_side_input:
+                        m2[bi, cur_idx, self.images_df_num_imgs[i] - 1] = 1
+                        m2[bi, cur_idx, 4 + self.images_df_img_idx[smpl[i]]] = 1
 
                 if self.has_y:
                     # noinspection PyUnboundLocalVariable
                     p[bi] = self.images_df_category_idx[smpl[0]]
                 bi += 1
-            if self.has_y:
-                self.queue.put(([m1, m2], p))
+            if self.use_side_input:
+                inputs = [m1, m2]
             else:
-                self.queue.put([m1, m2])
+                inputs = m1
+
+            if self.has_y:
+                self.queue.put((inputs, p))
+            else:
+                self.queue.put(inputs)
 
     def next(self):
         return self.queue.get()
