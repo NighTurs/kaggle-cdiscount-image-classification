@@ -1304,27 +1304,6 @@ ${DATA_INTERIM}/train_split.csv
 		--batch_seed 49461 \
 		--use_img_idx
 
-## Train head dense layer of VGG16 on top 2000 categories V26
-vgg16_head_top_2000_v26: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
-${DATA_INTERIM}/train_split.csv models/vgg16_head_top_2000_v25/model.h5
-	mkdir models/vgg16_head_top_2000_v26 ; \
-	cp models/vgg16_head_top_2000_v25/model.h5 models/vgg16_head_top_2000_v26 ; \
-	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --fit \
-		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
-		--memmap_len 12371293 \
-		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
-		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
-		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
-		--train_split_csv ${DATA_INTERIM}/train_split.csv \
-        --models_dir models/vgg16_head_top_2000_v26 \
-		--batch_size 500 \
-		--lr 0.0001 0.00001 \
-		--epochs 2 \
-		--shuffle 123 \
-		--mode 17 \
-		--batch_seed 49462 \
-		--use_img_idx
-
 ## Predict valid head dense layer of VGG16 on top 2000 categories V25
 vgg16_head_top_2000_v25_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --predict_valid \
@@ -1349,6 +1328,54 @@ vgg16_head_top_2000_v25_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_top_2000_v25 \
+		--batch_size 250 \
+		--use_img_idx
+
+## Train head dense layer of VGG16 on top 2000 categories V26
+vgg16_head_top_2000_v26: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/vgg16_head_top_2000_v25/model.h5
+	mkdir models/vgg16_head_top_2000_v26 ; \
+	cp models/vgg16_head_top_2000_v25/model.h5 models/vgg16_head_top_2000_v26 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --fit \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_2000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v26 \
+		--batch_size 500 \
+		--lr 0.0001 0.00001 \
+		--epochs 2 \
+		--shuffle 123 \
+		--mode 17 \
+		--batch_seed 49462 \
+		--use_img_idx
+
+## Predict valid head dense layer of VGG16 on top 2000 categories V26
+vgg16_head_top_2000_v26_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --predict_valid \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v26 \
+		--batch_size 250 \
+		--shuffle 123 \
+		--use_img_idx
+
+## Predict test head dense layer of VGG16 on top 2000 categories V26
+vgg16_head_top_2000_v26_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_vgg16_memmap_vecs --predict \
+		--memmap_path ${TEST_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_v26 \
 		--batch_size 250 \
 		--use_img_idx
 
@@ -1935,6 +1962,71 @@ vgg16_head_top_2000_avg_v6_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DA
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/vgg16_head_top_2000_avg_v6 \
+		--batch_size 250
+
+## Train head dense layer of average VGG16 on top 3000 categories V7
+vgg16_head_top_3000_avg_v7: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --fit \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_avg_v7 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 0 \
+		--batch_seed 583290 \
+		--memmap_len 12371293 \
+		--max_images 4
+
+## Train head dense layer of average VGG16 on top 3000 categories V8
+vgg16_head_top_3000_avg_v8: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/vgg16_head_top_3000_avg_v7/model.h5
+	mkdir models/vgg16_head_top_3000_avg_v8 ; \
+	cp models/vgg16_head_top_3000_avg_v7/model.h5 models/vgg16_head_top_3000_avg_v8 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --fit \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_avg_v8 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 2 \
+		--shuffle 123 \
+		--mode 0 \
+		--batch_seed 583291 \
+		--memmap_len 12371293 \
+		--max_images 4
+
+## Predict valid head dense layer of average VGG16 on top 3000 categories V8
+vgg16_head_top_3000_avg_v8_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict_valid \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_avg_v8 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of average VGG16  on top 3000 categories V8
+vgg16_head_top_3000_avg_v8_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict \
+		--memmap_path ${TEST_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_3000_avg_v8 \
 		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 2000 categories V1
