@@ -3877,6 +3877,22 @@ ensemble_nn_heng_v2_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}
 			--lr 0.01 \
 			--epochs 15
 
+## Train ensemble of Heng Cherkeng single models V2
+ensemble_nn_heng_v2_sngl_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions.csv \
+				models/resnet101_00243000_model/valid_single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions.csv \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions_tta_v1.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions_tta_v1.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions_tta_v1.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_heng_v2_sngl
+
 ## Predict ensemble of Heng Cherkeng single models V2
 ensemble_nn_heng_v2_sngl_test: models/ensemble_nn_heng_v2_sngl/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
@@ -4618,6 +4634,55 @@ ensemble_nn_vgg16_resnet50_sngl_v3_valid: ${DATA_INTERIM}/train_product_info.csv
 			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v3 \
 
+## Predict ensemble of VGG16 and ResNet50 single models V3
+ensemble_nn_vgg16_resnet50_sngl_v3_test: models/ensemble_nn_vgg16_resnet50_sngl_v3/model.h5
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/single_predictions.csv \
+				models/vgg16_head_top_2000_v2/single_predictions.csv \
+				models/vgg16_head_top_2000_v3/single_predictions.csv \
+				models/vgg16_head_top_2000_v4/single_predictions.csv \
+				models/vgg16_head_top_2000_v8/single_predictions.csv \
+				models/vgg16_head_top_2000_v9/single_predictions.csv \
+				models/vgg16_head_top_2000_v10/single_predictions.csv \
+				models/vgg16_head_top_2000_v12/single_predictions.csv \
+				models/vgg16_head_top_2000_v13/single_predictions.csv \
+				models/vgg16_head_top_2000_v14/single_predictions.csv \
+				models/vgg16_head_top_2000_v18/single_predictions.csv \
+				models/vgg16_head_top_2000_v20/single_predictions.csv \
+				models/vgg16_head_top_3000_v1/single_predictions.csv \
+				models/vgg16_head_top_3000_v3/single_predictions.csv \
+				models/vgg16_head_full_v1/single_predictions.csv \
+				models/vgg16_head_full_v3/single_predictions.csv \
+				models/vgg16_head_top_2000_v21/single_predictions.csv \
+				models/vgg16_head_top_2000_v22/single_predictions.csv \
+				models/vgg16_head_top_3000_v4/single_predictions.csv \
+				models/vgg16_head_top_3000_v5/single_predictions.csv \
+				models/vgg16_head_full_v4/single_predictions.csv \
+				models/vgg16_head_full_v5/single_predictions.csv \
+				models/resnet50_head_top_2000_v7/single_predictions.csv \
+				models/resnet50_head_top_2000_v8/single_predictions.csv \
+				models/resnet50_head_top_2000_v9/single_predictions.csv \
+				models/resnet50_head_top_2000_v10/single_predictions.csv \
+				models/resnet50_head_top_2000_v11/single_predictions.csv \
+				models/resnet50_head_top_3000_v2/single_predictions.csv \
+				models/resnet50_head_full_v2/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v1/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v2/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v3/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v4/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v5/single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v6/single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v1/single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v2/single_predictions.csv \
+				models/resnet50_head_full_img_idx_v1/single_predictions.csv \
+				models/resnet50_head_full_img_idx_v2/single_predictions.csv \
+				models/resnet50_head_top_2000_avg_v2/single_predictions.csv \
+				models/vgg16_head_top_2000_avg_v5/single_predictions.csv \
+				models/vgg16_head_top_2000_avg_v6/single_predictions.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v3 \
+			--total_records 17681820
+
 ## Ensemble with fixed weights V1
 ensemble_fixed_V1: models/ensemble_nn_vgg16_v1/predictions.csv models/LB_0_69565_inc3_00075000_model/predictions.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
@@ -4924,6 +4989,25 @@ data/processed/ensemble_fixed_V17_sum_submission.csv: models/ensemble_fixed_V17/
 		--preds_csv models/ensemble_fixed_V17/predictions.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--output_file data/processed/ensemble_fixed_V17_sum_submission.csv
+
+## Ensemble with fixed weights V18
+ensemble_fixed_V18: models/ensemble_nn_heng_v2_sngl/predictions.csv \
+	models/ensemble_nn_vgg16_resnet50_sngl_v3/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
+			--preds_csvs \
+				models/ensemble_nn_heng_v2_sngl/predictions.csv \
+				models/ensemble_nn_vgg16_resnet50_sngl_v3/predictions.csv \
+			--weights 0.4 0.6 \
+			--model_dir models/ensemble_fixed_V18
+
+## Form sum submission for ensemble with fixed weights V18
+ensemble_fixed_V18_sum_submission: data/processed/ensemble_fixed_V18_sum_submission.csv
+
+data/processed/ensemble_fixed_V18_sum_submission.csv: models/ensemble_fixed_V18/predictions.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.form_submission_sum \
+		--preds_csv models/ensemble_fixed_V18/predictions.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--output_file data/processed/ensemble_fixed_V18_sum_submission.csv
 
 #################################################################################
 # Self Documenting Commands                                                     #
