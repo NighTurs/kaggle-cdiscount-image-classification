@@ -22,7 +22,7 @@ LOAD_MODEL = 'model.h5'
 SNAPSHOT_MODEL = 'model.h5'
 LOG_FILE = 'training.log'
 PREDICTIONS_FILE = 'predictions.csv'
-VALID_PREDICTIONS_FILE = 'valid_predictions.csv'
+VALID_PREDICTIONS_FILE = 'valid_single_predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 50000
 
 
@@ -120,6 +120,61 @@ def fit_model(train_it, valid_mul_it, valid_sngl_it, num_classes, models_dir, lr
             'Single {}\n'.format(model.evaluate_generator(valid_sngl_it, steps=valid_sngl_it.samples / batch_size)))
 
 
+def predict(memmap_path, memmap_len, prod_info, sample_prod_info, models_dir, batch_size=200,
+            shuffle=None, top_k=10, use_img_idx=False):
+    model_file = os.path.join(models_dir, LOAD_MODEL)
+    if os.path.exists(model_file):
+        model = load_model(model_file)
+    else:
+        raise ValueError("Model doesn't exist")
+    images_df = create_images_df(prod_info, False)
+    images_df = images_df.merge(prod_info, on='product_id', how='left')[
+        ['product_id', 'img_idx', 'num_imgs']]
+    if shuffle:
+        np.random.seed(shuffle)
+        perm = np.random.permutation(images_df.shape[0])
+        images_df = images_df.reindex(perm)
+        images_df.reset_index(drop=True, inplace=True)
+    if sample_prod_info is not None:
+        images_df = images_df[images_df.product_id.isin(sample_prod_info.product_id)]
+    images_df.sort_values('product_id', inplace=True)
+    dfs = []
+    offset = 0
+    while offset < images_df.shape[0]:
+        end_idx = min(images_df.shape[0], offset + MAX_PREDICTIONS_AT_TIME - 5)
+        while end_idx < images_df.shape[0]:
+            if images_df.iloc[end_idx - 1].product_id == images_df.iloc[end_idx].product_id:
+                end_idx += 1
+            else:
+                break
+        it = MultiMemmapIterator(memmap_path=memmap_path,
+                                 memmap_shape=(memmap_len, 512, 2, 2),
+                                 images_df=images_df[offset:end_idx],
+                                 batch_size=batch_size,
+                                 pool_wrokers=1,
+                                 only_single=False,
+                                 include_singles=False,
+                                 max_images=4,
+                                 shuffle=False,
+                                 use_side_input=use_img_idx)
+
+        preds = model.predict_generator(it, it.samples / batch_size,
+                                        verbose=1, max_queue_size=10)
+        it.terminate()
+        del it
+        chunk = []
+        for i, product_id in enumerate(images_df[offset:end_idx].product_id.unique()):
+            top_k_preds = np.argpartition(preds[i], -top_k)[-top_k:]
+            for pred_idx in range(top_k):
+                chunk.append((product_id, 0, top_k_preds[pred_idx], preds[i, top_k_preds[pred_idx]]))
+
+        chunk_df = pd.DataFrame(chunk, columns=['product_id', 'img_idx', 'category_idx', 'prob'])
+        dfs.append(chunk_df)
+        offset = end_idx
+        del preds
+        del chunk
+    return pd.concat(dfs)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--fit', action='store_true', dest='is_fit')
@@ -179,3 +234,13 @@ if __name__ == '__main__':
         train_it.terminate()
         valid_mul_it.terminate()
         valid_sngl_it.terminate()
+    elif args.is_predict:
+        out_df = predict(args.memmap_path, args.memmap_len, prod_info, sample_prod_info, args.models_dir,
+                         use_img_idx=args.use_img_idx)
+        out_df.to_csv(os.path.join(args.models_dir, PREDICTIONS_FILE), index=False)
+    elif args.is_predict_valid:
+        only_valids = prod_info[
+            prod_info.product_id.isin(train_split[train_split.train == False].product_id)]
+        out_df = predict(args.memmap_path, args.memmap_len, prod_info, only_valids, args.models_dir,
+                         shuffle=args.shuffle, use_img_idx=args.use_img_idx)
+        out_df.to_csv(os.path.join(args.models_dir, VALID_PREDICTIONS_FILE), index=False)

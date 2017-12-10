@@ -72,7 +72,7 @@ class MultiMemmapIterator():
                     m1[bi, cur_idx] = self.x[self.images_df_index[i]]
                     if self.use_side_input:
                         m2[bi, cur_idx, self.images_df_num_imgs[i] - 1] = 1
-                        m2[bi, cur_idx, 4 + self.images_df_img_idx[smpl[i]]] = 1
+                        m2[bi, cur_idx, 4 + self.images_df_img_idx[i]] = 1
 
                 if self.has_y:
                     # noinspection PyUnboundLocalVariable

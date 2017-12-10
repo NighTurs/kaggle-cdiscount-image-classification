@@ -1,4 +1,5 @@
 import os
+import gc
 import argparse
 import pandas as pd
 import numpy as np
@@ -18,6 +19,8 @@ from keras.constraints import non_neg
 N_CATEGORIES = 5270
 CATEGORIES_SPLIT = 2000
 MODEL_FILE = 'model.h5'
+VALID_PREDICTIONS_FILE = 'valid_predictions.csv'
+TOP_K = 10
 
 
 class SpecialIterator(Iterator):
@@ -111,8 +114,59 @@ def train_ensemble_nn(preds_csv_files, prod_info_csv, category_idx_csv, model_di
     model.save(os.path.join(model_dir, MODEL_FILE))
 
 
+def predict_valid(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, batch_size):
+    model_file = os.path.join(model_dir, MODEL_FILE)
+    if os.path.exists(model_file):
+        model = load_model(model_file)
+    else:
+        raise ValueError("Model doesn't exist")
+
+    prod_info = pd.read_csv(prod_info_csv)
+    category_idx = pd.read_csv(category_idx_csv)
+
+    all_preds = []
+    model_inx = {}
+    for i, csv in enumerate(preds_csv_files):
+        preds = pd.read_csv(csv)
+        preds['model'] = i
+        model_inx[i] = csv
+        all_preds.append(preds)
+    print('Assigned indexes to models: ', model_inx)
+    all_preds = pd.concat(all_preds)
+    all_preds.sort_values(['product_id', 'img_idx'], inplace=True)
+
+    n_models = len(preds_csv_files)
+
+    categories = prod_info[prod_info.product_id.isin(all_preds.product_id.unique())][['product_id', 'category_id']]
+    del prod_info
+
+    categories['category_idx'] = map_categories(category_idx, categories.category_id)
+    categories = categories[['product_id', 'category_idx']]
+    categories = categories.set_index('product_id')
+
+    chunk_size = 50000 * n_models * TOP_K
+    with open(os.path.join(args.model_dir, VALID_PREDICTIONS_FILE), 'w') as f:
+        f.write('product_id,img_idx,category_idx,prob\n')
+        for start_i in range(0, all_preds.shape[0], chunk_size):
+            end_i = min(all_preds.shape[0], start_i + chunk_size)
+            it = SpecialIterator(all_preds[start_i:end_i], categories, n_models, batch_size=batch_size, shuffle=False)
+            products = all_preds[start_i:end_i][['product_id', 'img_idx']].drop_duplicates()
+            preds = model.predict_generator(it, it.samples / batch_size,
+                                            verbose=1, max_queue_size=10)
+            del it
+            gc.collect()
+            top_k_preds = np.argpartition(preds, -TOP_K)[:, -TOP_K:]
+            for i, row in enumerate(products.itertuples()):
+                for pred_idx in range(TOP_K):
+                    f.write('{},{},{},{}\n'.format(row.product_id, row.img_idx, top_k_preds[i, pred_idx],
+                                                   preds[i, top_k_preds[i, pred_idx]]))
+            f.flush()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--predict_valid', action='store_true', dest='is_predict_valid')
+    parser.set_defaults(is_predict_valid=False)
     parser.add_argument('--preds_csvs', nargs='+', required=True, help='Files with predictions of valid split')
     parser.add_argument('--prod_info_csv', required=True, help='Path to prod info csv')
     parser.add_argument('--category_idx_csv', required=True, help='Path to categories to index mapping csv')
@@ -123,5 +177,9 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=2000, required=False, help='Batch size')
 
     args = parser.parse_args()
-    train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr, args.seed,
-                      args.batch_size, args.epochs)
+    if args.is_predict_valid:
+        predict_valid(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.batch_size)
+    else:
+        train_ensemble_nn(args.preds_csvs, args.prod_info_csv, args.category_idx_csv, args.model_dir, args.lr,
+                          args.seed,
+                          args.batch_size, args.epochs)

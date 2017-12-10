@@ -1845,6 +1845,31 @@ ${DATA_INTERIM}/train_split.csv
 		--memmap_len 12371293 \
 		--max_images 4
 
+## Predict valid head dense layer of average VGG16 on top 2000 categories V5
+vgg16_head_top_2000_avg_v5_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict_valid \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_avg_v5 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of average ResNet50  on top 2000 categories V5
+vgg16_head_top_2000_avg_v5_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict \
+		--memmap_path ${TEST_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_avg_v5 \
+		--batch_size 250
+
 ## Train head dense layer of average VGG16 on top 2000 categories V6
 vgg16_head_top_2000_avg_v6: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv models/vgg16_head_top_2000_avg_v5/model.h5
@@ -1865,6 +1890,31 @@ ${DATA_INTERIM}/train_split.csv models/vgg16_head_top_2000_avg_v5/model.h5
 		--batch_seed 587323 \
 		--memmap_len 12371293 \
 		--max_images 4
+
+## Predict valid head dense layer of average VGG16 on top 2000 categories V6
+vgg16_head_top_2000_avg_v6_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict_valid \
+		--memmap_path ${TRAIN_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_avg_v6 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of average ResNet50  on top 2000 categories V6
+vgg16_head_top_2000_avg_v6_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_vgg16_vecs --predict \
+		--memmap_path ${TEST_VGG16_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/vgg16_head_top_2000_avg_v6 \
+		--batch_size 250
 
 ## Train head dense layer of ResNet50 on top 2000 categories V1
 resnet50_head_top_2000_v1: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -2968,6 +3018,31 @@ ${DATA_INTERIM}/train_split.csv
 		--batch_seed 5673 \
 		--memmap_len 12371293
 
+## Predict valid head dense layer of average ResNet50  on top 2000 categories V1
+resnet50_head_top_2000_avg_v1_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v1 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of average ResNet50  on top 2000 categories V1
+resnet50_head_top_2000_avg_v1_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v1 \
+		--batch_size 250
+
 ## Train head dense layer of average ResNet50 on top 2000 categories V2
 resnet50_head_top_2000_avg_v2: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
 ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_avg_v1/model.h5
@@ -2987,6 +3062,31 @@ ${DATA_INTERIM}/train_split.csv models/resnet50_head_top_2000_avg_v1/model.h5
 		--mode 0 \
 		--batch_seed 57108 \
 		--memmap_len 12371293
+
+## Predict valid head dense layer of average ResNet50  on top 2000 categories V2
+resnet50_head_top_2000_avg_v2_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v2 \
+		--batch_size 250 \
+		--shuffle 123
+
+## Predict test head dense layer of average ResNet50  on top 2000 categories V2
+resnet50_head_top_2000_avg_v2_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_2000_avg_v2 \
+		--batch_size 250
 
 ## Train head dense layer of average ResNet50 on top 2000 categories V3
 resnet50_head_top_2000_avg_v3: ${DATA_INTERIM}/top_2000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
@@ -3652,6 +3752,25 @@ ensemble_nn_heng_v2: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/cate
 			--lr 0.01 \
 			--epochs 3
 
+## Predict valid ensemble of Heng Cherkeng models V2
+ensemble_nn_heng_v2_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/valid_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_predictions.csv \
+				models/resnet101_00243000_model/valid_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_heng_v2
+
+# Transform to single valid predictions ensemble of Heng Cherkeng models V2
+ensemble_nn_heng_v2_valid_sngl: models/ensemble_nn_heng_v2/valid_predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.sngl_preds_to_avg \
+			--preds_csv models/ensemble_nn_heng_v2/valid_predictions.csv \
+			--output_file models/ensemble_nn_heng_v2/valid_single_predictions.csv \
+
 ## Predict ensemble of Heng Cherkeng models V2
 ensemble_nn_heng_v2_test: models/ensemble_nn_heng_v2/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
@@ -3685,6 +3804,19 @@ ensemble_nn_heng_v1_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}
 			--seed 414 \
 			--lr 0.01 \
 			--epochs 3
+
+## Predict valid ensemble of Heng Cherkeng single models V1
+ensemble_nn_heng_v1_sngl_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+				models/LB_0_69565_inc3_00075000_model/valid_single_predictions.csv \
+				models/LB_0_69673_se_inc3_00026000_model/valid_single_predictions.csv \
+				models/resnet101_00243000_model/valid_single_predictions.csv \
+				models/LB_0_69422_xception_00158000_model/valid_single_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_heng_v1_sngl
 
 ## Predict ensemble of Heng Cherkeng single models V1
 ensemble_nn_heng_v1_sngl_test: models/ensemble_nn_heng_v1_sngl/model.h5
@@ -4046,6 +4178,45 @@ ensemble_nn_vgg16_resnet50_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INT
 			--model_dir models/ensemble_nn_vgg16_resnet50_v1 \
 			--lr 0.1
 
+## Predict valid ensemble of VGG16 and ResNet50 models V1
+ensemble_nn_vgg16_resnet50_v1_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+				models/vgg16_head_top_2000_v1/valid_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_predictions.csv \
+				models/vgg16_head_top_2000_v20/valid_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_predictions.csv \
+				models/vgg16_head_top_3000_v3/valid_predictions.csv \
+				models/vgg16_head_full_v1/valid_predictions.csv \
+				models/vgg16_head_full_v3/valid_predictions.csv \
+				models/resnet50_head_top_2000_v7/valid_predictions.csv \
+				models/resnet50_head_top_2000_v8/valid_predictions.csv \
+				models/resnet50_head_top_2000_v9/valid_predictions.csv \
+				models/resnet50_head_top_2000_v10/valid_predictions.csv \
+				models/resnet50_head_top_2000_v11/valid_predictions.csv \
+				models/resnet50_head_top_3000_v2/valid_predictions.csv \
+				models/resnet50_head_full_v2/valid_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_v1 \
+			--lr 0.1
+
+# Transform to single valid predictions ensemble of VGG16 and ResNet50 models V1
+ensemble_nn_vgg16_resnet50_v1_valid_sngl: models/ensemble_nn_vgg16_resnet50_v1/valid_predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.sngl_preds_to_avg \
+			--preds_csv models/ensemble_nn_vgg16_resnet50_v1/valid_predictions.csv \
+			--output_file models/ensemble_nn_vgg16_resnet50_v1/valid_single_predictions.csv \
+
 ## Predict ensemble of VGG16 and ResNet50 models V1
 ensemble_nn_vgg16_resnet50_v1_test: models/ensemble_nn_vgg16_resnet50_v1/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
@@ -4074,6 +4245,12 @@ ensemble_nn_vgg16_resnet50_v1_test: models/ensemble_nn_vgg16_resnet50_v1/model.h
 				models/resnet50_head_top_3000_v2/predictions.csv \
 				models/resnet50_head_full_v2/predictions.csv \
 			--model_dir models/ensemble_nn_vgg16_resnet50_v1
+
+# Transform to single valid predictions ensemble of VGG16 and ResNet50 models V1
+ensemble_nn_vgg16_resnet50_v1_test_sngl: models/ensemble_nn_vgg16_resnet50_v1/predictions.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.sngl_preds_to_avg \
+			--preds_csv models/ensemble_nn_vgg16_resnet50_v1/predictions.csv \
+			--output_file models/ensemble_nn_vgg16_resnet50_v1/single_predictions.csv \
 
 ## Train ensemble of VGG16 and ResNet50 single models V1
 ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
@@ -4123,6 +4300,55 @@ ensemble_nn_vgg16_resnet50_sngl_v1: ${DATA_INTERIM}/train_product_info.csv ${DAT
 			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v1 \
 			--lr 0.01 \
 			--epochs 4 \
+			--batch_size 1500
+
+## Predict valid ensemble of VGG16 and ResNet50 single models V1
+ensemble_nn_vgg16_resnet50_sngl_v1_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+			    models/vgg16_head_top_2000_v1/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v20/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v3/valid_single_predictions.csv \
+				models/vgg16_head_full_v1/valid_single_predictions.csv \
+				models/vgg16_head_full_v3/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v21/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v22/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v4/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v5/valid_single_predictions.csv \
+				models/vgg16_head_full_v4/valid_single_predictions.csv \
+				models/vgg16_head_full_v5/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v7/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v8/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v9/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v10/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v11/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_v2/valid_single_predictions.csv \
+				models/resnet50_head_full_v2/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v2/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v3/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v4/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v5/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v6/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v2/valid_single_predictions.csv \
+				models/resnet50_head_full_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_full_img_idx_v2/valid_single_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v1 \
 			--batch_size 1500
 
 ## Predict ensemble of VGG16 and ResNet50 single models V1
