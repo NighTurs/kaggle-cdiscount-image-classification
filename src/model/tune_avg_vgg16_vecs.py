@@ -21,7 +21,7 @@ from src.model.resnet50_vecs import create_images_df
 LOAD_MODEL = 'model.h5'
 SNAPSHOT_MODEL = 'model.h5'
 LOG_FILE = 'training.log'
-PREDICTIONS_FILE = 'predictions.csv'
+PREDICTIONS_FILE = 'single_predictions.csv'
 VALID_PREDICTIONS_FILE = 'valid_single_predictions.csv'
 MAX_PREDICTIONS_AT_TIME = 50000
 

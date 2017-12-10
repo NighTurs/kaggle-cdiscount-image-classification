@@ -3296,6 +3296,77 @@ ${DATA_INTERIM}/train_split.csv
 		--max_images 4 \
 		--memmap_len 12371293
 
+## Train head dense layer of average ResNet50 on top 3000 categories V8
+resnet50_head_top_3000_avg_v8: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_avg_v8 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 3 \
+		--batch_seed 56077 \
+		--max_images 4 \
+		--memmap_len 12371293 \
+		--dont_use_img_idx \
+		--dont_include_singles
+
+## Train head dense layer of average ResNet50 on top 3000 categories V9
+resnet50_head_top_3000_avg_v9: ${DATA_INTERIM}/top_3000_sample_product_info.csv ${DATA_INTERIM}/category_idx.csv \
+${DATA_INTERIM}/train_split.csv models/resnet50_head_top_3000_avg_v8/model.h5
+	mkdir models/resnet50_head_top_3000_avg_v9 ; \
+	cp models/resnet50_head_top_3000_avg_v8/model.h5 models/resnet50_head_top_3000_avg_v9 ; \
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --fit \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/top_3000_sample_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_avg_v9 \
+		--batch_size 500 \
+		--lr 0.0001 \
+		--epochs 2 \
+		--shuffle 123 \
+		--mode 3 \
+		--batch_seed 56078 \
+		--max_images 4 \
+		--memmap_len 12371293 \
+		--dont_use_img_idx \
+		--dont_include_singles
+
+## Predict valid head dense layer of average ResNet50  on top 3000 categories V9
+resnet50_head_top_3000_avg_v9_valid_sngl: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict_valid \
+		--bcolz_root ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 12371293 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_avg_v9 \
+		--batch_size 250 \
+		--shuffle 123 \
+		--dont_use_img_idx \
+
+## Predict test head dense layer of average ResNet50  on top 3000 categories V9
+resnet50_head_top_3000_avg_v9_test_sngl: ${DATA_INTERIM}/test_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_avg_resnet50_vecs --predict \
+		--bcolz_root ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_len 3095080 \
+		--bcolz_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--sample_prod_info_csv ${DATA_INTERIM}/test_product_info.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_top_3000_avg_v9 \
+		--batch_size 250 \
+		--dont_use_img_idx \
+
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_inception3_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
