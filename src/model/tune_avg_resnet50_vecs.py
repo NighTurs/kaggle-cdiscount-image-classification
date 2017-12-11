@@ -78,7 +78,7 @@ def train_data(memmap_path, memmap_len, bcolz_prod_info, sample_prod_info, train
                                         shuffle=False,
                                         only_single=True,
                                         include_singles=True,
-                                        max_images=1,
+                                        max_images=4,
                                         pool_wrokers=1,
                                         use_side_input=use_img_idx)
     return train_it, valid_mul_it, valid_sngl_it, num_classes
