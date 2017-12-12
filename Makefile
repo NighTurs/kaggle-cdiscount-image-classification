@@ -80,6 +80,19 @@ ${DATA_INTERIM}/test_product_info.csv:
 	pipenv run $(PYTHON_INTERPRETER) src/data/product_info.py --bson ${TEST_BSON} \
 		--without_categories --output_file ${DATA_INTERIM}/test_product_info.csv
 
+## Create pseudo label dataset from ensemble_nn_vgg16_resnet50_sngl_v3
+pseudo_labels_product_info_v1: ${DATA_INTERIM}/pl_train_produdct_info_v1.csv
+
+${DATA_INTERIM}/pl_train_produdct_info_v1.csv:
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.pseudo_label_prod_info \
+		--train_prod_info ${DATA_INTERIM}/train_product_info.csv \
+		--test_prod_info ${DATA_INTERIM}/test_product_info.csv \
+		--valid_preds models/ensemble_nn_vgg16_resnet50_sngl_v3/valid_predictions.csv \
+		--test_preds models/ensemble_nn_vgg16_resnet50_sngl_v3/predictions.csv \
+		--pl_train_prod_info ${DATA_INTERIM}/pl_train_produdct_info_v1.csv \
+		--pl_test_prod_info ${DATA_INTERIM}/pl_test_produdct_info_v1.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
+
 ## Create stratified sample with 200000 products
 big_sample: ${DATA_INTERIM}/big_sample_product_info.csv
 
