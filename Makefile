@@ -93,6 +93,19 @@ ${DATA_INTERIM}/pl_train_produdct_info_v1.csv:
 		--pl_test_prod_info ${DATA_INTERIM}/pl_test_produdct_info_v1.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
 
+## Create pseudo label dataset from ensemble_nn_vgg16_resnet50_sngl_v4
+pseudo_labels_product_info_v2: ${DATA_INTERIM}/pl_train_product_info_v2.csv
+
+${DATA_INTERIM}/pl_train_product_info_v2.csv:
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.pseudo_label_prod_info \
+		--train_prod_info ${DATA_INTERIM}/train_product_info.csv \
+		--test_prod_info ${DATA_INTERIM}/test_product_info.csv \
+		--valid_preds models/ensemble_nn_vgg16_resnet50_sngl_v4/valid_predictions.csv \
+		--test_preds models/ensemble_nn_vgg16_resnet50_sngl_v4/predictions.csv \
+		--pl_train_prod_info ${DATA_INTERIM}/pl_train_product_info_v2.csv \
+		--pl_test_prod_info ${DATA_INTERIM}/pl_test_product_info_v2.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv
+
 ## Create stratified sample with 200000 products
 big_sample: ${DATA_INTERIM}/big_sample_product_info.csv
 
@@ -3380,6 +3393,29 @@ resnet50_head_top_3000_avg_v9_test_sngl: ${DATA_INTERIM}/test_product_info.csv $
 		--batch_size 250 \
 		--dont_use_img_idx \
 
+## Train head dense layer of average ResNet50 on full categories with pseudo labeling V1
+resnet50_head_full_avg_pl_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.tune_pl_avg_resnet50_vecs --fit \
+		--memmap_path_train ${TRAIN_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_train_len 12371293 \
+		--memmap_path_test ${TEST_RESNET50_VECS_MEMMAP_PATH} \
+		--memmap_test_len 3095080 \
+		--train_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+		--train_pl_prod_info_csv ${DATA_INTERIM}/pl_train_produdct_info_v2.csv \
+		--test_pl_prod_info_csv ${DATA_INTERIM}/pl_test_produdct_info_v2.csv \
+		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+		--train_split_csv ${DATA_INTERIM}/train_split.csv \
+        --models_dir models/resnet50_head_full_avg_pl_v1 \
+		--batch_size 250 \
+		--lr 0.001 \
+		--epochs 4 \
+		--shuffle 123 \
+		--mode 3 \
+		--batch_seed 56079 \
+		--max_images 4 \
+		--dont_use_img_idx \
+		--dont_include_singles
+
 ## Predict Inception3 model by Heng Cherkeng, get weights and label_to_cat_id from
 ## https://drive.google.com/drive/folders/0B_DICebvRE-kRWxJeUpJVmY1UkU
 heng_inception3_test: ${DATA_INTERIM}/category_idx.csv ${DATA_RAW}/heng_label_to_cat_id \
@@ -4916,6 +4952,61 @@ ensemble_nn_vgg16_resnet50_sngl_v4: ${DATA_INTERIM}/train_product_info.csv ${DAT
 			--epochs 5 \
 			--batch_size 1300
 
+## Train ensemble of VGG16 and ResNet50 single models V4
+ensemble_nn_vgg16_resnet50_sngl_v4_valid: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTERIM}/category_idx.csv
+	pipenv run $(PYTHON_INTERPRETER) -m src.model.train_ensemble_nn \
+			--predict_valid \
+			--preds_csvs \
+			    models/vgg16_head_top_2000_v1/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v2/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v3/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v4/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v8/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v9/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v10/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v12/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v13/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v14/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v18/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v20/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v1/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v3/valid_single_predictions.csv \
+				models/vgg16_head_full_v1/valid_single_predictions.csv \
+				models/vgg16_head_full_v3/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v21/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v22/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v4/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_v5/valid_single_predictions.csv \
+				models/vgg16_head_full_v4/valid_single_predictions.csv \
+				models/vgg16_head_full_v5/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v7/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v8/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v9/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v10/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_v11/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_v2/valid_single_predictions.csv \
+				models/resnet50_head_full_v2/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v2/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v3/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v4/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v5/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_img_idx_v6/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_img_idx_v2/valid_single_predictions.csv \
+				models/resnet50_head_full_img_idx_v1/valid_single_predictions.csv \
+				models/resnet50_head_full_img_idx_v2/valid_single_predictions.csv \
+				models/resnet50_head_top_2000_avg_v2/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_avg_v5/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_avg_v6/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v25/valid_single_predictions.csv \
+				models/vgg16_head_top_2000_v26/valid_single_predictions.csv \
+				models/vgg16_head_top_3000_avg_v8/valid_single_predictions.csv \
+				models/resnet50_head_top_3000_avg_v9/valid_single_predictions.csv \
+			--prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
+			--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
+			--model_dir models/ensemble_nn_vgg16_resnet50_sngl_v4
+
 ## Predict ensemble of VGG16 and ResNet50 single models V4
 ensemble_nn_vgg16_resnet50_sngl_v4_test: models/ensemble_nn_vgg16_resnet50_sngl_v4/model.h5
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.predict_ensemble_nn \
@@ -5335,7 +5426,7 @@ data/processed/ensemble_fixed_V20_sum_submission.csv: models/ensemble_fixed_V20/
 
 ## Ensemble with fixed weights V21
 ensemble_fixed_V21: models/ensemble_nn_heng_v2_sngl/predictions.csv \
-	models/ensemble_nn_vgg16_resnet50_sngl_v3/predictions.csv
+	models/ensemble_nn_vgg16_resnet50_sngl_v4/predictions.csv
 	pipenv run $(PYTHON_INTERPRETER) -m src.model.ensemble_fixed_weights \
 			--preds_csvs \
 				models/ensemble_nn_heng_v2_sngl/predictions.csv \
