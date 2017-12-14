@@ -144,22 +144,28 @@ def predict_valid(preds_csv_files, prod_info_csv, category_idx_csv, model_dir, b
     categories = categories[['product_id', 'category_idx']]
     categories = categories.set_index('product_id')
 
+    del category_idx
     chunk_size = 50000 * n_models * TOP_K
     with open(os.path.join(args.model_dir, VALID_PREDICTIONS_FILE), 'w') as f:
         f.write('product_id,img_idx,category_idx,prob\n')
         for start_i in range(0, all_preds.shape[0], chunk_size):
             end_i = min(all_preds.shape[0], start_i + chunk_size)
             it = SpecialIterator(all_preds[start_i:end_i], categories, n_models, batch_size=batch_size, shuffle=False)
-            products = all_preds[start_i:end_i][['product_id', 'img_idx']].drop_duplicates()
+
             preds = model.predict_generator(it, it.samples / batch_size,
                                             verbose=1, max_queue_size=10)
             del it
             gc.collect()
             top_k_preds = np.argpartition(preds, -TOP_K)[:, -TOP_K:]
+            products = all_preds[start_i:end_i][['product_id', 'img_idx']].drop_duplicates()
             for i, row in enumerate(products.itertuples()):
                 for pred_idx in range(TOP_K):
                     f.write('{},{},{},{}\n'.format(row.product_id, row.img_idx, top_k_preds[i, pred_idx],
                                                    preds[i, top_k_preds[i, pred_idx]]))
+            del top_k_preds
+            del preds
+            del products
+            gc.collect()
             f.flush()
 
 
