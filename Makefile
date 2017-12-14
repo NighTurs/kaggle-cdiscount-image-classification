@@ -3401,8 +3401,8 @@ resnet50_head_full_avg_pl_v1: ${DATA_INTERIM}/train_product_info.csv ${DATA_INTE
 		--memmap_path_test ${TEST_RESNET50_VECS_MEMMAP_PATH} \
 		--memmap_test_len 3095080 \
 		--train_prod_info_csv ${DATA_INTERIM}/train_product_info.csv \
-		--train_pl_prod_info_csv ${DATA_INTERIM}/pl_train_produdct_info_v2.csv \
-		--test_pl_prod_info_csv ${DATA_INTERIM}/pl_test_produdct_info_v2.csv \
+		--train_pl_prod_info_csv ${DATA_INTERIM}/pl_train_product_info_v2.csv \
+		--test_pl_prod_info_csv ${DATA_INTERIM}/pl_test_product_info_v2.csv \
 		--category_idx_csv ${DATA_INTERIM}/category_idx.csv \
 		--train_split_csv ${DATA_INTERIM}/train_split.csv \
         --models_dir models/resnet50_head_full_avg_pl_v1 \
