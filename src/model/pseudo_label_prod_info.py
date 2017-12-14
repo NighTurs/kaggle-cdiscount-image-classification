@@ -31,16 +31,8 @@ def create_pl_prod_infos(train_prod_info_csv, test_prod_info_csv, valid_preds_cs
     test_prod_info.to_csv(pl_test_prod_info, index=False)
 
     valid_preds = pick_top_category(valid_preds, category_map)
-    print(len(train_prod_info) - train_prod_info.isnull().sum())
-    print(len(valid_preds) - valid_preds.isnull().sum())
-    print(valid_preds.dtypes)
-    print(valid_preds.head())
-    print(valid_preds[valid_preds.product_id == 188279])
     train_prod_info.loc[train_prod_info.product_id.isin(valid_preds.product_id), 'category_id'] = valid_preds[
         'category_id'].as_matrix()
-    print(train_prod_info.loc[train_prod_info.product_id.isin(valid_preds.product_id)].shape)
-    print(len(train_prod_info) - train_prod_info.isnull().sum())
-    print(train_prod_info[train_prod_info.category_id.isnull()].head())
     train_prod_info.to_csv(pl_train_prod_info, index=False)
 
 
